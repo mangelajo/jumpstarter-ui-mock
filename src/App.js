@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Page,
   PageSidebar,
@@ -38,6 +38,10 @@ import {
   ApplicationsIcon,
   BarsIcon
 } from '@patternfly/react-icons';
+import ExportersPage from './ExportersPage';
+import LeasesPage from './LeasesPage';
+import ClientsPage from './ClientsPage';
+import ShellPage from './ShellPage';
 import './App.css';
 
 function App() {
@@ -46,12 +50,33 @@ function App() {
   const [isHelpDropdownOpen, setIsHelpDropdownOpen] = useState(false);
   const [activeItem, setActiveItem] = useState('exporters');
 
+  useEffect(() => {
+    console.log('activeItem changed to:', activeItem);
+  }, [activeItem]);
+
   const onNavToggle = () => {
     setIsNavOpen(!isNavOpen);
   };
 
-  const onSelect = (result) => {
-    setActiveItem(result.itemId);
+  const onSelect = (event, itemId) => {
+    console.log('Navigation clicked:', event, 'itemId:', itemId); // Debug log
+    
+    // If itemId is provided, use it directly
+    if (itemId) {
+      console.log('Setting activeItem to:', itemId); // Debug log
+      setActiveItem(itemId);
+      return;
+    }
+    
+    // Otherwise, try to extract from the event
+    const target = event.target;
+    const navItem = target.closest('[data-item-id]');
+    const extractedItemId = navItem?.getAttribute('data-item-id');
+    
+    console.log('Extracted itemId:', extractedItemId); // Debug log
+    if (extractedItemId) {
+      setActiveItem(extractedItemId);
+    }
   };
 
   const onUserDropdownToggle = () => {
@@ -62,19 +87,40 @@ function App() {
     setIsHelpDropdownOpen(!isHelpDropdownOpen);
   };
 
+  const handleNavClick = (itemId) => {
+    console.log('Nav item clicked:', itemId);
+    setActiveItem(itemId);
+  };
+
   const PageNav = (
-    <Nav id="main-nav" theme="dark" onSelect={onSelect}>
+    <Nav id="main-nav" theme="dark">
       <NavList>
-        <NavItem itemId="exporters" isActive={activeItem === 'exporters'}>
+        <NavItem 
+          itemId="exporters" 
+          isActive={activeItem === 'exporters'} 
+          onClick={() => handleNavClick('exporters')}
+        >
           Exporters
         </NavItem>
-        <NavItem itemId="leases" isActive={activeItem === 'leases'}>
+        <NavItem 
+          itemId="leases" 
+          isActive={activeItem === 'leases'} 
+          onClick={() => handleNavClick('leases')}
+        >
           Leases
         </NavItem>
-        <NavItem itemId="clients" isActive={activeItem === 'clients'}>
+        <NavItem 
+          itemId="clients" 
+          isActive={activeItem === 'clients'} 
+          onClick={() => handleNavClick('clients')}
+        >
           Clients
         </NavItem>
-        <NavItem itemId="shell" isActive={activeItem === 'shell'}>
+        <NavItem 
+          itemId="shell" 
+          isActive={activeItem === 'shell'} 
+          onClick={() => handleNavClick('shell')}
+        >
           Shell
         </NavItem>
       </NavList>
@@ -152,7 +198,7 @@ function App() {
                 toggle={(toggleRef) => (
                   <MenuToggle
                     ref={toggleRef}
-                    icon={<Avatar alt="User" size="md">U</Avatar>}
+                    icon={<Avatar alt="User" size="md" />}
                     onClick={onUserDropdownToggle}
                     isExpanded={isUserDropdownOpen}
                     variant="plainText"
@@ -183,51 +229,16 @@ function App() {
   );
 
   const getPageContent = () => {
+    console.log('Current activeItem:', activeItem); // Debug log
     switch (activeItem) {
       case 'exporters':
-        return (
-          <PageSection variant={PageSectionVariants.light}>
-            <TextContent>
-              <Text component={TextVariants.h1}>Exporters</Text>
-              <Text component={TextVariants.p}>
-                Manage and configure exporters for your OpenShift cluster.
-              </Text>
-            </TextContent>
-          </PageSection>
-        );
+        return <ExportersPage />;
       case 'leases':
-        return (
-          <PageSection variant={PageSectionVariants.light}>
-            <TextContent>
-              <Text component={TextVariants.h1}>Leases</Text>
-              <Text component={TextVariants.p}>
-                View and manage lease information for your resources.
-              </Text>
-            </TextContent>
-          </PageSection>
-        );
+        return <LeasesPage />;
       case 'clients':
-        return (
-          <PageSection variant={PageSectionVariants.light}>
-            <TextContent>
-              <Text component={TextVariants.h1}>Clients</Text>
-              <Text component={TextVariants.p}>
-                Manage client connections and configurations.
-              </Text>
-            </TextContent>
-          </PageSection>
-        );
+        return <ClientsPage />;
       case 'shell':
-        return (
-          <PageSection variant={PageSectionVariants.light}>
-            <TextContent>
-              <Text component={TextVariants.h1}>Shell</Text>
-              <Text component={TextVariants.p}>
-                Access shell interface for your OpenShift cluster.
-              </Text>
-            </TextContent>
-          </PageSection>
-        );
+        return <ShellPage />;
       default:
         return (
           <PageSection variant={PageSectionVariants.light}>

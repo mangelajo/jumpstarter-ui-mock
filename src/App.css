@@ -19,3 +19,19 @@ body,
 #primary-app-container {
   height: 100%;
 }
+
+/* Fix table column widths */
+.pf-c-table th {
+  white-space: nowrap;
+}
+
+.pf-c-table th:last-child {
+  min-width: 80px;
+  width: 80px;
+}
+
+/* Ensure action column doesn't get truncated */
+.pf-c-table .pf-c-table__action {
+  width: 80px;
+  min-width: 80px;
+}
