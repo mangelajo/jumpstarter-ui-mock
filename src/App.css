@@ -1,0 +1,21 @@
+/* Global styles inspired by flightctl-ui */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+/* Minimal custom styling - let PatternFly handle most of it */
+.fctl-app_toolbar {
+  justify-content: end;
+}
+
+/* Ensure proper height for the page */
+.pf-c-page {
+  height: 100vh;
+}
+
+/* Custom styling for the main container */
+#primary-app-container {
+  height: 100%;
+}
