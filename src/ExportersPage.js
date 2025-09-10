@@ -184,8 +184,7 @@ const ExportersPage = () => {
 
   const filteredExporters = useMemo(() => {
     return mockExporters.filter(exporter => {
-      const matchesSearch = exporter.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-                           exporter.namespace.toLowerCase().includes(searchValue.toLowerCase());
+      const matchesSearch = exporter.name.toLowerCase().includes(searchValue.toLowerCase());
       const matchesStatus = statusFilter === 'All' || exporter.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
@@ -377,12 +376,9 @@ const ExportersPage = () => {
           {sortedExporters.map((exporter, index) => (
             <Tr key={exporter.name}>
               <Td dataLabel="Name">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Text component={TextVariants.a} href="#" style={{ fontWeight: 'bold' }}>
-                    {exporter.name}
-                  </Text>
-                  <Badge isRead>{exporter.namespace}</Badge>
-                </div>
+                <Text component={TextVariants.a} href="#" style={{ fontWeight: 'bold' }}>
+                  {exporter.name}
+                </Text>
               </Td>
               <Td dataLabel="Status">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
