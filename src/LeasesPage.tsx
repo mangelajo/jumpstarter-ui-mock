@@ -21,8 +21,7 @@ import {
   LabelGroup,
   Text,
   TextContent,
-  TextVariants,
-  DropdownToggle
+  TextVariants
 } from '@patternfly/react-core';
 import {
   Table,
@@ -30,9 +29,7 @@ import {
   Tbody,
   Tr,
   Th,
-  Td,
-  ActionsColumn,
-  IAction
+  Td
 } from '@patternfly/react-table';
 import {
   FilterIcon,
@@ -43,130 +40,105 @@ import {
   ExclamationTriangleIcon,
   ClockIcon
 } from '@patternfly/react-icons';
+import { Lease, ActionItem, TableColumn, SortDirection } from './types';
 
 // Mock data based on the provided JSON
-const mockLeases = [
+const mockLeases: Lease[] = [
   {
     name: "0198bbdb-5825-785a-ae18-c55830627ce7",
-    selector: "device=ti-jacinto-j784s4xevm-04",
-    duration: 2592000.0,
-    client: "bzlotnik",
-    exporter: "ti-jacinto-j784s4xevm-04",
     status: "Ready",
-    effectiveBeginTime: "2025-08-18T08:26:11+02:00",
-    conditions: [{
-      type: "Ready",
-      status: "True",
-      reason: "Ready",
-      message: "An exporter has been acquired for the client"
-    }]
-  },
-  {
-    name: "01990c47-87ef-701e-abf1-f2db333f7ef7",
-    selector: "board-type=qc8775,enabled=true",
-    duration: 864000.0,
-    client: "sberg",
+    client: "user-123",
     exporter: "qti-snapdragon-ride4-sa8775p-03",
-    status: "Ready",
-    effectiveBeginTime: "2025-09-02T23:13:58+02:00",
-    conditions: [{
-      type: "Ready",
-      status: "True",
-      reason: "Ready",
-      message: "An exporter has been acquired for the client"
-    }]
+    duration: "2h30m",
+    effectiveBeginTime: "2024-01-15T10:30:00Z",
+    selector: {
+      board: "qti-snapdragon-ride4-sa8775p",
+      location: "bos2"
+    }
   },
   {
-    name: "01991a0f-a8b7-7085-b864-59025390bcc0",
-    selector: "device=qti-snapdragon-ride4-sa8775p-23",
-    duration: 2592000.0,
-    client: "mskrivan",
-    exporter: "qti-snapdragon-ride4-sa8775p-23",
-    status: "Ready",
-    effectiveBeginTime: "2025-09-05T15:27:37+02:00",
-    conditions: [{
-      type: "Ready",
-      status: "True",
-      reason: "Ready",
-      message: "An exporter has been acquired for the client"
-    }]
-  },
-  {
-    name: "019933b0-6b46-709f-b7f9-88563497975f",
-    selector: "device=ti-jacinto-j784s4xevm-04",
-    duration: 1800.0,
-    client: "bzlotnik",
-    exporter: "",
+    name: "0198bbdb-5825-785a-ae18-c55830627ce8",
     status: "Pending",
-    effectiveBeginTime: "1970-01-01T02:00:00+02:00",
-    conditions: [{
-      type: "Pending",
-      status: "True",
-      reason: "NotAvailable",
-      message: "There are 1 approved exporters, but all of them are already leased"
-    }]
+    client: "user-456",
+    exporter: "nxp-imx8qxp-mek-eballetbo-01",
+    duration: "1h45m",
+    effectiveBeginTime: "2024-01-15T14:15:00Z",
+    selector: {
+      board: "nxp-imx8qxp-mek",
+      location: "eballetbo-desk"
+    }
+  },
+  {
+    name: "0198bbdb-5825-785a-ae18-c55830627ce9",
+    status: "Ready",
+    client: "user-789",
+    duration: "3h15m",
+    effectiveBeginTime: "2024-01-15T09:00:00Z",
+    selector: {
+      board: "renesas-rcar-s4",
+      location: "bos2"
+    }
+  },
+  {
+    name: "0198bbdb-5825-785a-ae18-c55830627cea",
+    status: "Error",
+    client: "user-101",
+    exporter: "ti-jacinto-j784s4xevm-01",
+    duration: "0h5m",
+    effectiveBeginTime: "2024-01-15T16:45:00Z",
+    selector: {
+      board: "j784s4evm",
+      location: "bos2"
+    }
   }
 ];
 
-const LeasesPage = () => {
-  const [searchValue, setSearchValue] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
-  const [sortBy, setSortBy] = useState('name');
-  const [sortDirection, setSortDirection] = useState('asc');
-  const [openDropdownId, setOpenDropdownId] = useState(null);
+const LeasesPage: React.FC = () => {
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
-  const statusOptions = ['All', 'Ready', 'Pending', 'Failed'];
+  const statusOptions: string[] = ['All', 'Ready', 'Pending', 'Error'];
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: Lease['status']): React.ReactElement | null => {
     switch (status) {
       case 'Ready':
         return <CheckCircleIcon style={{ color: 'var(--pf-global--success-color--100)' }} />;
       case 'Pending':
         return <ClockIcon style={{ color: 'var(--pf-global--warning-color--100)' }} />;
-      case 'Failed':
+      case 'Error':
         return <ExclamationTriangleIcon style={{ color: 'var(--pf-global--danger-color--100)' }} />;
       default:
         return null;
     }
   };
 
-  const getStatusBadgeVariant = (status) => {
+  const getStatusBadgeVariant = (status: Lease['status']): 'success' | 'warning' | 'danger' | 'default' => {
     switch (status) {
       case 'Ready':
         return 'success';
       case 'Pending':
         return 'warning';
-      case 'Failed':
+      case 'Error':
         return 'danger';
       default:
         return 'default';
     }
   };
 
-  const formatDuration = (seconds) => {
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    
-    if (days > 0) {
-      return `${days}d ${hours}h`;
-    } else if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    } else {
-      return `${minutes}m`;
-    }
+  const formatDuration = (duration: string): string => {
+    return duration;
   };
 
-  const formatDateTime = (dateTimeString) => {
-    if (dateTimeString === "1970-01-01T02:00:00+02:00") {
-      return "Not started";
-    }
-    const date = new Date(dateTimeString);
+  const formatDateTime = (dateTime: string): string => {
+    const date = new Date(dateTime);
     return date.toLocaleString();
   };
 
-  const shortenUUID = (uuid) => {
+  const shortenUUID = (uuid: string): string => {
     return uuid.substring(uuid.length - 8);
   };
 
@@ -182,8 +154,13 @@ const LeasesPage = () => {
 
   const sortedLeases = useMemo(() => {
     return [...filteredLeases].sort((a, b) => {
-      const aValue = a[sortBy];
-      const bValue = b[sortBy];
+      const aValue = a[sortBy as keyof Lease];
+      const bValue = b[sortBy as keyof Lease];
+      
+      // Handle undefined values
+      if (aValue === undefined && bValue === undefined) return 0;
+      if (aValue === undefined) return 1;
+      if (bValue === undefined) return -1;
       
       if (sortDirection === 'asc') {
         return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
@@ -193,7 +170,7 @@ const LeasesPage = () => {
     });
   }, [filteredLeases, sortBy, sortDirection]);
 
-  const onSort = (column) => {
+  const onSort = (column: string): void => {
     if (sortBy === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -202,20 +179,20 @@ const LeasesPage = () => {
     }
   };
 
-  const getSortIcon = (column) => {
+  const getSortIcon = (column: string): React.ReactElement | null => {
     if (sortBy !== column) return null;
     return <SortAmountDownIcon style={{ transform: sortDirection === 'desc' ? 'rotate(180deg)' : 'none' }} />;
   };
 
-  const renderSelector = (selector) => {
-    const pairs = selector.split(',').slice(0, 3); // Show first 3 selector pairs
-    const remainingCount = selector.split(',').length - 3;
+  const renderSelector = (selector: Record<string, string>): React.ReactElement => {
+    const selectorEntries = Object.entries(selector).slice(0, 2); // Show first 2 selector entries
+    const remainingCount = Object.keys(selector).length - 2;
     
     return (
       <LabelGroup>
-        {pairs.map((pair, index) => (
-          <Label key={index} color="blue">
-            {pair.trim()}
+        {selectorEntries.map(([key, value]) => (
+          <Label key={key} color="blue">
+            {key}={value}
           </Label>
         ))}
         {remainingCount > 0 && (
@@ -227,20 +204,20 @@ const LeasesPage = () => {
     );
   };
 
-  const actionItems = (row) => [
-    { 
-      key: 'release', 
+  const actionItems = (row: Lease): ActionItem[] => [
+    {
+      key: 'release',
       label: 'Release',
       onClick: () => console.log(`Release action for ${row.name}`)
     },
-    { 
-      key: 'extend', 
+    {
+      key: 'extend',
       label: 'Extend',
       onClick: () => console.log(`Extend action for ${row.name}`)
     }
   ];
 
-  const columns = [
+  const columns: TableColumn[] = [
     {
       key: 'name',
       title: 'Lease ID',
@@ -284,14 +261,14 @@ const LeasesPage = () => {
         <Title headingLevel="h1" size="2xl">Leases</Title>
         <TextContent>
           <Text component={TextVariants.p}>
-            View and manage lease information for your resources.
+            Manage and monitor active leases for your exporters.
           </Text>
         </TextContent>
       </div>
 
       <Toolbar>
         <ToolbarContent>
-          <ToolbarGroup variant={ToolbarGroupVariant.filterGroup}>
+          <ToolbarGroup variant="filter-group">
             <ToolbarFilter
               chips={statusFilter !== 'All' ? [statusFilter] : []}
               deleteChip={() => setStatusFilter('All')}
@@ -301,7 +278,7 @@ const LeasesPage = () => {
                 isOpen={isStatusDropdownOpen}
                 onOpenChange={setIsStatusDropdownOpen}
                 onSelect={(event, value) => {
-                  setStatusFilter(value);
+                  setStatusFilter(value as string);
                   setIsStatusDropdownOpen(false);
                 }}
                 toggle={(toggleRef) => (
@@ -325,12 +302,12 @@ const LeasesPage = () => {
               </Dropdown>
             </ToolbarFilter>
           </ToolbarGroup>
-          <ToolbarGroup variant={ToolbarGroupVariant.searchGroup}>
+          <ToolbarGroup>
             <ToolbarItem>
               <SearchInput
                 placeholder="Search by lease ID, exporter, or client..."
                 value={searchValue}
-                onChange={(event, value) => setSearchValue(value)}
+                onChange={(event, value) => setSearchValue(value as string)}
                 onClear={() => setSearchValue('')}
               />
             </ToolbarItem>
@@ -389,13 +366,15 @@ const LeasesPage = () => {
               <Td dataLabel="Status">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   {getStatusIcon(lease.status)}
-                  <Badge variant={getStatusBadgeVariant(lease.status)}>
+                  <Badge isRead={lease.status === 'Ready'}>
                     {lease.status}
                   </Badge>
                 </div>
               </Td>
               <Td dataLabel="Client">
-                <Badge variant="info">{lease.client}</Badge>
+                <Text component={TextVariants.a} href="#" style={{ fontWeight: 'bold' }}>
+                  {lease.client}
+                </Text>
               </Td>
               <Td dataLabel="Duration">
                 <Text component={TextVariants.small}>

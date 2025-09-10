@@ -21,8 +21,7 @@ import {
   LabelGroup,
   Text,
   TextContent,
-  TextVariants,
-  DropdownToggle
+  TextVariants
 } from '@patternfly/react-core';
 import {
   Table,
@@ -30,9 +29,7 @@ import {
   Tbody,
   Tr,
   Th,
-  Td,
-  ActionsColumn,
-  IAction
+  Td
 } from '@patternfly/react-table';
 import {
   FilterIcon,
@@ -43,9 +40,10 @@ import {
   ExclamationTriangleIcon,
   TimesCircleIcon
 } from '@patternfly/react-icons';
+import { Exporter, ActionItem, TableColumn, SortDirection } from './types';
 
 // Mock data based on the provided JSON
-const mockExporters = [
+const mockExporters: Exporter[] = [
   {
     name: "nxp-imx8qxp-mek-eballetbo-01",
     namespace: "jumpstarter-lab",
@@ -142,17 +140,17 @@ const mockExporters = [
   }
 ];
 
-const ExportersPage = () => {
-  const [searchValue, setSearchValue] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
-  const [sortBy, setSortBy] = useState('name');
-  const [sortDirection, setSortDirection] = useState('asc');
-  const [openDropdownId, setOpenDropdownId] = useState(null);
+const ExportersPage: React.FC = () => {
+  const [searchValue, setSearchValue] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<string>('name');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
-  const statusOptions = ['All', 'Available', 'Leased', 'Maintenance', 'Error'];
+  const statusOptions: string[] = ['All', 'Available', 'Leased', 'Maintenance', 'Error'];
 
-  const getStatusIcon = (status) => {
+  const getStatusIcon = (status: Exporter['status']): React.ReactElement | null => {
     switch (status) {
       case 'Available':
         return <CheckCircleIcon style={{ color: 'var(--pf-global--success-color--100)' }} />;
@@ -167,7 +165,7 @@ const ExportersPage = () => {
     }
   };
 
-  const getStatusBadgeVariant = (status) => {
+  const getStatusBadgeVariant = (status: Exporter['status']): 'success' | 'info' | 'warning' | 'danger' | 'default' => {
     switch (status) {
       case 'Available':
         return 'success';
@@ -192,8 +190,8 @@ const ExportersPage = () => {
 
   const sortedExporters = useMemo(() => {
     return [...filteredExporters].sort((a, b) => {
-      const aValue = a[sortBy];
-      const bValue = b[sortBy];
+      const aValue = a[sortBy as keyof Exporter];
+      const bValue = b[sortBy as keyof Exporter];
       
       if (sortDirection === 'asc') {
         return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
@@ -203,7 +201,7 @@ const ExportersPage = () => {
     });
   }, [filteredExporters, sortBy, sortDirection]);
 
-  const onSort = (column) => {
+  const onSort = (column: string): void => {
     if (sortBy === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
@@ -212,12 +210,12 @@ const ExportersPage = () => {
     }
   };
 
-  const getSortIcon = (column) => {
+  const getSortIcon = (column: string): React.ReactElement | null => {
     if (sortBy !== column) return null;
     return <SortAmountDownIcon style={{ transform: sortDirection === 'desc' ? 'rotate(180deg)' : 'none' }} />;
   };
 
-  const renderLabels = (labels) => {
+  const renderLabels = (labels: Record<string, string>): React.ReactElement => {
     const labelEntries = Object.entries(labels).slice(0, 3); // Show first 3 labels
     const remainingCount = Object.keys(labels).length - 3;
     
@@ -237,7 +235,7 @@ const ExportersPage = () => {
     );
   };
 
-  const actionItems = (row) => [
+  const actionItems = (row: Exporter): ActionItem[] => [
     { 
       key: 'lease', 
       label: 'Lease',
@@ -265,7 +263,7 @@ const ExportersPage = () => {
     }
   ];
 
-  const columns = [
+  const columns: TableColumn[] = [
     {
       key: 'name',
       title: 'Name',
@@ -301,7 +299,7 @@ const ExportersPage = () => {
 
       <Toolbar>
         <ToolbarContent>
-          <ToolbarGroup variant={ToolbarGroupVariant.filterGroup}>
+          <ToolbarGroup variant="filter-group">
             <ToolbarFilter
               chips={statusFilter !== 'All' ? [statusFilter] : []}
               deleteChip={() => setStatusFilter('All')}
@@ -311,7 +309,7 @@ const ExportersPage = () => {
                 isOpen={isStatusDropdownOpen}
                 onOpenChange={setIsStatusDropdownOpen}
                 onSelect={(event, value) => {
-                  setStatusFilter(value);
+                  setStatusFilter(value as string);
                   setIsStatusDropdownOpen(false);
                 }}
                 toggle={(toggleRef) => (
@@ -335,12 +333,12 @@ const ExportersPage = () => {
               </Dropdown>
             </ToolbarFilter>
           </ToolbarGroup>
-          <ToolbarGroup variant={ToolbarGroupVariant.searchGroup}>
+          <ToolbarGroup>
             <ToolbarItem>
               <SearchInput
                 placeholder="Search by name..."
                 value={searchValue}
-                onChange={(event, value) => setSearchValue(value)}
+                onChange={(event, value) => setSearchValue(value as string)}
                 onClear={() => setSearchValue('')}
               />
             </ToolbarItem>
@@ -369,7 +367,7 @@ const ExportersPage = () => {
                 {column.sortable && getSortIcon(column.key)}
               </Th>
             ))}
-            <Th style={{ minWidth: '80px' }}></Th>
+            <Th style={{ minWidth: '80px' }}>Actions</Th>
           </Tr>
         </Thead>
         <Tbody>
@@ -383,7 +381,7 @@ const ExportersPage = () => {
               <Td dataLabel="Status">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   {getStatusIcon(exporter.status)}
-                  <Badge variant={getStatusBadgeVariant(exporter.status)}>
+                  <Badge isRead={exporter.status === 'Available'}>
                     {exporter.status}
                   </Badge>
                 </div>
@@ -394,7 +392,7 @@ const ExportersPage = () => {
                     {exporter.lease}
                   </Text>
                 ) : (
-                  <Badge variant="info">{exporter.lease}</Badge>
+                  <Badge>{exporter.lease}</Badge>
                 )}
               </Td>
               <Td dataLabel="Labels">

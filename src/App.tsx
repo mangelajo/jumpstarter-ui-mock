@@ -44,50 +44,52 @@ import ClientsPage from './ClientsPage';
 import ShellPage from './ShellPage';
 import './App.css';
 
-function App() {
-  const [isNavOpen, setIsNavOpen] = useState(true);
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
-  const [isHelpDropdownOpen, setIsHelpDropdownOpen] = useState(false);
-  const [activeItem, setActiveItem] = useState('exporters');
+type ActiveItem = 'exporters' | 'leases' | 'clients' | 'shell';
+
+const App: React.FC = () => {
+  const [isNavOpen, setIsNavOpen] = useState<boolean>(true);
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState<boolean>(false);
+  const [isHelpDropdownOpen, setIsHelpDropdownOpen] = useState<boolean>(false);
+  const [activeItem, setActiveItem] = useState<ActiveItem>('exporters');
 
   useEffect(() => {
     console.log('activeItem changed to:', activeItem);
   }, [activeItem]);
 
-  const onNavToggle = () => {
+  const onNavToggle = (): void => {
     setIsNavOpen(!isNavOpen);
   };
 
-  const onSelect = (event, itemId) => {
+  const onSelect = (event: React.SyntheticEvent, itemId?: string): void => {
     console.log('Navigation clicked:', event, 'itemId:', itemId); // Debug log
     
     // If itemId is provided, use it directly
     if (itemId) {
       console.log('Setting activeItem to:', itemId); // Debug log
-      setActiveItem(itemId);
+      setActiveItem(itemId as ActiveItem);
       return;
     }
     
     // Otherwise, try to extract from the event
-    const target = event.target;
-    const navItem = target.closest('[data-item-id]');
+    const target = event.target as HTMLElement;
+    const navItem = target.closest('[data-item-id]') as HTMLElement;
     const extractedItemId = navItem?.getAttribute('data-item-id');
     
     console.log('Extracted itemId:', extractedItemId); // Debug log
     if (extractedItemId) {
-      setActiveItem(extractedItemId);
+      setActiveItem(extractedItemId as ActiveItem);
     }
   };
 
-  const onUserDropdownToggle = () => {
+  const onUserDropdownToggle = (): void => {
     setIsUserDropdownOpen(!isUserDropdownOpen);
   };
 
-  const onHelpDropdownToggle = () => {
+  const onHelpDropdownToggle = (): void => {
     setIsHelpDropdownOpen(!isHelpDropdownOpen);
   };
 
-  const handleNavClick = (itemId) => {
+  const handleNavClick = (itemId: ActiveItem): void => {
     console.log('Nav item clicked:', itemId);
     setActiveItem(itemId);
   };
@@ -228,7 +230,7 @@ function App() {
     </PageSidebar>
   );
 
-  const getPageContent = () => {
+  const getPageContent = (): React.ReactElement => {
     console.log('Current activeItem:', activeItem); // Debug log
     switch (activeItem) {
       case 'exporters':
@@ -263,6 +265,6 @@ function App() {
       {getPageContent()}
     </Page>
   );
-}
+};
 
 export default App;

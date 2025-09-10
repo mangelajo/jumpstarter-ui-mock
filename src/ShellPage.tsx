@@ -8,25 +8,25 @@ import {
   TextVariants
 } from '@patternfly/react-core';
 
-const ClientsPage = () => {
+const ShellPage: React.FC = () => {
   return (
     <PageSection variant={PageSectionVariants.light}>
       <div style={{ marginBottom: '1rem' }}>
-        <Title headingLevel="h1" size="2xl">Clients</Title>
+        <Title headingLevel="h1" size="2xl">Shell</Title>
         <TextContent>
           <Text component={TextVariants.p}>
-            Manage client connections and configurations.
+            Access shell interface for your OpenShift cluster.
           </Text>
         </TextContent>
       </div>
       
       <div style={{ padding: '2rem', textAlign: 'center', border: '1px dashed #ccc', borderRadius: '4px' }}>
         <Text component={TextVariants.p} style={{ color: 'var(--pf-global--Color--300)' }}>
-          Clients content will be implemented here.
+          Shell content will be implemented here.
         </Text>
       </div>
     </PageSection>
   );
 };
 
-export default ClientsPage;
+export default ShellPage;
