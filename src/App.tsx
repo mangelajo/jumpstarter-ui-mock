@@ -41,16 +41,18 @@ import {
 import ExportersPage from './ExportersPage';
 import LeasesPage from './LeasesPage';
 import ClientsPage from './ClientsPage';
-import ShellPage from './ShellPage';
+import ExporterDetailsPage from './ExporterDetailsPage';
+import { Exporter } from './types';
 import './App.css';
 
-type ActiveItem = 'exporters' | 'leases' | 'clients' | 'shell';
+type ActiveItem = 'exporters' | 'leases' | 'clients' | 'exporter-details';
 
 const App: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(true);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState<boolean>(false);
   const [isHelpDropdownOpen, setIsHelpDropdownOpen] = useState<boolean>(false);
   const [activeItem, setActiveItem] = useState<ActiveItem>('exporters');
+  const [selectedExporter, setSelectedExporter] = useState<Exporter | null>(null);
 
   useEffect(() => {
     console.log('activeItem changed to:', activeItem);
@@ -94,6 +96,16 @@ const App: React.FC = () => {
     setActiveItem(itemId);
   };
 
+  const handleExporterSelect = (exporter: Exporter): void => {
+    setSelectedExporter(exporter);
+    setActiveItem('exporter-details');
+  };
+
+  const handleBackToExporters = (): void => {
+    setActiveItem('exporters');
+    setSelectedExporter(null);
+  };
+
   const PageNav = (
     <Nav id="main-nav" theme="dark">
       <NavList>
@@ -117,13 +129,6 @@ const App: React.FC = () => {
           onClick={() => handleNavClick('clients')}
         >
           Clients
-        </NavItem>
-        <NavItem 
-          itemId="shell" 
-          isActive={activeItem === 'shell'} 
-          onClick={() => handleNavClick('shell')}
-        >
-          Shell
         </NavItem>
       </NavList>
     </Nav>
@@ -234,13 +239,27 @@ const App: React.FC = () => {
     console.log('Current activeItem:', activeItem); // Debug log
     switch (activeItem) {
       case 'exporters':
-        return <ExportersPage />;
+        return <ExportersPage onExporterSelect={handleExporterSelect} />;
       case 'leases':
         return <LeasesPage />;
       case 'clients':
         return <ClientsPage />;
-      case 'shell':
-        return <ShellPage />;
+      case 'exporter-details':
+        return selectedExporter ? (
+          <ExporterDetailsPage 
+            exporter={selectedExporter} 
+            onBack={handleBackToExporters} 
+          />
+        ) : (
+          <PageSection variant={PageSectionVariants.light}>
+            <TextContent>
+              <Text component={TextVariants.h1}>Exporter Not Found</Text>
+              <Text component={TextVariants.p}>
+                The selected exporter could not be found.
+              </Text>
+            </TextContent>
+          </PageSection>
+        );
       default:
         return (
           <PageSection variant={PageSectionVariants.light}>

@@ -47,6 +47,9 @@ export type StatusBadgeVariant = 'success' | 'info' | 'warning' | 'danger' | 'de
 // Navigation types
 export type ActiveItem = 'exporters' | 'leases' | 'clients' | 'shell';
 
+// Exporter details page types
+export type ExporterDetailsTab = 'details' | 'metrics' | 'yaml' | 'events' | 'shell';
+
 // Event handler types
 export type DropdownSelectHandler = (event: React.SyntheticEvent, value: string) => void;
 export type SearchChangeHandler = (event: React.SyntheticEvent, value: string) => void;

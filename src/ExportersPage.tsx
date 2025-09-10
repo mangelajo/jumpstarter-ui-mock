@@ -42,6 +42,10 @@ import {
 } from '@patternfly/react-icons';
 import { Exporter, ActionItem, TableColumn, SortDirection } from './types';
 
+interface ExportersPageProps {
+  onExporterSelect: (exporter: Exporter) => void;
+}
+
 // Mock data based on the provided JSON
 const mockExporters: Exporter[] = [
   {
@@ -140,7 +144,7 @@ const mockExporters: Exporter[] = [
   }
 ];
 
-const ExportersPage: React.FC = () => {
+const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect }) => {
   const [searchValue, setSearchValue] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState<boolean>(false);
@@ -374,9 +378,13 @@ const ExportersPage: React.FC = () => {
           {sortedExporters.map((exporter, index) => (
             <Tr key={exporter.name}>
               <Td dataLabel="Name">
-                <Text component={TextVariants.a} href="#" style={{ fontWeight: 'bold' }}>
+                <Button 
+                  variant={ButtonVariant.link} 
+                  onClick={() => onExporterSelect(exporter)}
+                  style={{ fontWeight: 'bold', padding: 0, textAlign: 'left' }}
+                >
                   {exporter.name}
-                </Text>
+                </Button>
               </Td>
               <Td dataLabel="Status">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

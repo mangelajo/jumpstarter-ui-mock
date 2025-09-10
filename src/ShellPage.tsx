@@ -5,26 +5,37 @@ import {
   Title,
   Text,
   TextContent,
-  TextVariants
+  TextVariants,
+  Card,
+  CardBody,
+  CardTitle
 } from '@patternfly/react-core';
+import TerminalConsole from './TerminalConsole';
 
 const ShellPage: React.FC = () => {
   return (
     <PageSection variant={PageSectionVariants.light}>
       <div style={{ marginBottom: '1rem' }}>
-        <Title headingLevel="h1" size="2xl">Shell</Title>
+        <Title headingLevel="h1" size="2xl">Jumpstarter Shell</Title>
         <TextContent>
           <Text component={TextVariants.p}>
-            Access shell interface for your OpenShift cluster.
+            Access shell interface for your OpenShift cluster and exporters.
           </Text>
         </TextContent>
       </div>
       
-      <div style={{ padding: '2rem', textAlign: 'center', border: '1px dashed #ccc', borderRadius: '4px' }}>
-        <Text component={TextVariants.p} style={{ color: 'var(--pf-global--Color--300)' }}>
-          Shell content will be implemented here.
-        </Text>
-      </div>
+      <Card style={{ height: '600px' }}>
+        <CardTitle>General Shell Access</CardTitle>
+        <CardBody style={{ height: 'calc(100% - 60px)', padding: 0 }}>
+          <TerminalConsole
+            exporterName="general-shell"
+            onConnect={() => console.log('General shell connected')}
+            onDisconnect={() => console.log('General shell disconnected')}
+            onData={(data) => console.log('Shell data:', data)}
+            onSend={(command) => console.log('Command sent:', command)}
+          />
+        </CardBody>
+      </Card>
     </PageSection>
   );
 };
