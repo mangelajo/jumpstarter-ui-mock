@@ -148,7 +148,7 @@ function App() {
         <Toolbar isFullHeight isStatic>
           <ToolbarContent>
             <ToolbarItem>
-              <Button variant={ButtonVariant.plain}>Project: openshift-builds</Button>
+              <Button variant={ButtonVariant.plain}>Project: jumpstarter-lab</Button>
             </ToolbarItem>
             <ToolbarItem>
               <Button variant={ButtonVariant.plain} aria-label="Applications">
