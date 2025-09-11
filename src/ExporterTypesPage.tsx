@@ -142,7 +142,7 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
                         <img
                           src={exporterType.spec.base64Image}
                           alt={exporterType.metadata.name}
-                          style={{ width: '48px', height: '48px', objectFit: 'contain' }}
+                          style={{ width: '128px', height: 'auto', objectFit: 'contain' }}
                         />
                         <FlexItem>
                           <Badge isRead color={getVendorBadgeColor(exporterType.metadata.labels.vendor)}>
