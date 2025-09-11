@@ -12,6 +12,7 @@ import {
   Nav,
   NavList,
   NavItem,
+  NavExpandable,
   Toolbar,
   ToolbarContent,
   ToolbarItem,
@@ -170,27 +171,32 @@ const App: React.FC = () => {
   const PageNav = (
     <Nav id="main-nav" theme="dark">
       <NavList>
-        <NavItem 
-          itemId="exporters" 
-          isActive={activeItem === 'exporters'} 
-          onClick={() => handleNavClick('exporters')}
+        <NavExpandable 
+          title="Jumpstarter" 
+          isExpanded={activeItem === 'exporters' || activeItem === 'leases' || activeItem === 'clients'}
         >
-          Exporters
-        </NavItem>
-        <NavItem 
-          itemId="leases" 
-          isActive={activeItem === 'leases'} 
-          onClick={() => handleNavClick('leases')}
-        >
-          Leases
-        </NavItem>
-        <NavItem 
-          itemId="clients" 
-          isActive={activeItem === 'clients'} 
-          onClick={() => handleNavClick('clients')}
-        >
-          Clients
-        </NavItem>
+          <NavItem 
+            itemId="exporters" 
+            isActive={activeItem === 'exporters'} 
+            onClick={() => handleNavClick('exporters')}
+          >
+            Exporters
+          </NavItem>
+          <NavItem 
+            itemId="leases" 
+            isActive={activeItem === 'leases'} 
+            onClick={() => handleNavClick('leases')}
+          >
+            Leases
+          </NavItem>
+          <NavItem 
+            itemId="clients" 
+            isActive={activeItem === 'clients'} 
+            onClick={() => handleNavClick('clients')}
+          >
+            Clients
+          </NavItem>
+        </NavExpandable>
       </NavList>
     </Nav>
   );

@@ -39,6 +39,29 @@ export interface Exporter {
   };
 }
 
+export interface ExporterType {
+  apiVersion: string;
+  kind: string;
+  metadata: {
+    name: string;
+    namespace: string;
+    labels: Record<string, string>;
+    annotations: Record<string, string>;
+    resourceVersion?: string;
+    generation?: number;
+    creationTimestamp?: string;
+    uid?: string;
+  };
+  spec: {
+    description: string;
+    exporterSelector: Record<string, string>;
+    base64Image: string;
+    documentation: string;
+  };
+  status: {};
+}
+
+
 export interface Lease {
   apiVersion: string;
   kind: string;
