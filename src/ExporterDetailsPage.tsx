@@ -49,6 +49,7 @@ import {
 } from '@patternfly/react-icons';
 import { Exporter, ExporterDetailsTab } from './types';
 import PatternFlyTreeView from './components/PatternFlyTreeView';
+import ExporterEventsTab from './ExporterEventsTab';
 
 interface ExporterDetailsPageProps {
   exporter: Exporter;
@@ -327,17 +328,153 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
     );
   };
 
-  const renderMetricsTab = (): React.ReactElement => (
-    <Card>
-      <CardTitle>Metrics</CardTitle>
-      <CardBody>
-        <Text component={TextVariants.p}>
-          Metrics data would be displayed here. This could include performance metrics,
-          resource usage, and other monitoring data for the exporter.
-        </Text>
-      </CardBody>
-    </Card>
-  );
+  const renderMetricsTab = (): React.ReactElement => {
+    // Mock data for charts
+    const leasesData = [12, 18, 15, 22, 28, 25, 30, 27, 24, 19, 16, 21];
+    const bandwidthData = [45, 52, 38, 61, 55, 48, 67, 59, 43, 51, 46, 58];
+    const flashOpsData = [3, 5, 2, 7, 4, 6, 8, 5, 3, 4, 2, 6];
+    const sessionsData = [2, 3, 1, 4, 3, 2, 5, 4, 2, 3, 1, 4];
+    
+    const dailyLabels = ['1/9', '2/9', '3/9', '4/9', '5/9', '6/9', '7/9', '8/9', '9/9', '10/9', '11/9', '12/9'];
+    const hourlyLabels = ['9AM', '10AM', '11AM', '12PM', '1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM', '8PM'];
+    
+    const maxValue = Math.max(...leasesData, ...bandwidthData, ...flashOpsData, ...sessionsData);
+    
+    const renderBarChart = (data: number[], color: string, labels: string[]) => (
+      <div style={{ width: '100%', height: '200px', padding: '10px', display: 'flex', alignItems: 'end', gap: '4px' }}>
+        {data.map((value, index) => (
+          <div key={index} style={{ 
+            flex: 1, 
+            height: `${(value / maxValue) * 160}px`, 
+            backgroundColor: color,
+            borderRadius: '2px 2px 0 0',
+            minHeight: '2px',
+            position: 'relative'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '-20px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              fontSize: '10px',
+              color: '#666',
+              whiteSpace: 'nowrap'
+            }}>
+              {value}
+            </div>
+          </div>
+        ))}
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px 10px', fontSize: '10px', color: '#666', position: 'absolute', bottom: '0', left: '0', right: '0' }}>
+          {labels.map((label, index) => (
+            <span key={index}>{label}</span>
+          ))}
+        </div>
+      </div>
+    );
+    
+    const renderLineChart = (data: number[], color: string, labels: string[]) => {
+      const points = data.map((value, index) => {
+        const x = (index / (data.length - 1)) * 100;
+        const y = 100 - (value / maxValue) * 80;
+        return `${x},${y}`;
+      }).join(' ');
+      
+      return (
+        <div style={{ width: '100%', height: '200px', padding: '10px', position: 'relative' }}>
+          <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none">
+            <polyline
+              fill="none"
+              stroke={color}
+              strokeWidth="0.5"
+              points={points}
+            />
+            {data.map((value, index) => {
+              const x = (index / (data.length - 1)) * 100;
+              const y = 100 - (value / maxValue) * 80;
+              return (
+                <circle
+                  key={index}
+                  cx={x}
+                  cy={y}
+                  r="1"
+                  fill={color}
+                />
+              );
+            })}
+          </svg>
+          <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px 10px', fontSize: '10px', color: '#666', position: 'absolute', bottom: '0', left: '0', right: '0' }}>
+            {labels.map((label, index) => (
+              <span key={index}>{label}</span>
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className="pf-v5-l-grid pf-m-gutter">
+        <div className="pf-v5-l-grid__item pf-m-12-col-on-lg pf-m-6-col-on-xl">
+          <Card className="resource-metrics-dashboard__card">
+            <CardTitle>Leases per Day</CardTitle>
+            <CardBody className="resource-metrics-dashboard__card-body">
+              <div className="query-browser__wrapper">
+                <div className="graph-wrapper graph-wrapper--query-browser">
+                  <div style={{ width: '100%', height: '200px', background: '#fafafa', borderRadius: '4px', border: '1px solid #e0e0e0' }}>
+                    {renderBarChart(leasesData, '#06c', dailyLabels)}
+                  </div>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+        
+        <div className="pf-v5-l-grid__item pf-m-12-col-on-lg pf-m-6-col-on-xl">
+          <Card className="resource-metrics-dashboard__card">
+            <CardTitle>Bandwidth Usage per Hour (MB)</CardTitle>
+            <CardBody className="resource-metrics-dashboard__card-body">
+              <div className="query-browser__wrapper">
+                <div className="graph-wrapper graph-wrapper--query-browser">
+                  <div style={{ width: '100%', height: '200px', background: '#fafafa', borderRadius: '4px', border: '1px solid #e0e0e0' }}>
+                    {renderLineChart(bandwidthData, '#28a745', hourlyLabels)}
+                  </div>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+        
+        <div className="pf-v5-l-grid__item pf-m-12-col-on-lg pf-m-6-col-on-xl">
+          <Card className="resource-metrics-dashboard__card">
+            <CardTitle>Flash Operations per Day</CardTitle>
+            <CardBody className="resource-metrics-dashboard__card-body">
+              <div className="query-browser__wrapper">
+                <div className="graph-wrapper graph-wrapper--query-browser">
+                  <div style={{ width: '100%', height: '200px', background: '#fafafa', borderRadius: '4px', border: '1px solid #e0e0e0' }}>
+                    {renderBarChart(flashOpsData, '#ffc107', dailyLabels)}
+                  </div>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+        
+        <div className="pf-v5-l-grid__item pf-m-12-col-on-lg pf-m-6-col-on-xl">
+          <Card className="resource-metrics-dashboard__card">
+            <CardTitle>Active Sessions</CardTitle>
+            <CardBody className="resource-metrics-dashboard__card-body">
+              <div className="query-browser__wrapper">
+                <div className="graph-wrapper graph-wrapper--query-browser">
+                  <div style={{ width: '100%', height: '200px', background: '#fafafa', borderRadius: '4px', border: '1px solid #e0e0e0' }}>
+                    {renderLineChart(sessionsData, '#dc3545', hourlyLabels)}
+                  </div>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+      </div>
+    );
+  };
 
   const renderYamlTab = (): React.ReactElement => (
     <Card>
@@ -369,15 +506,7 @@ status:
   );
 
   const renderEventsTab = (): React.ReactElement => (
-    <Card>
-      <CardTitle>Events</CardTitle>
-      <CardBody>
-        <Text component={TextVariants.p}>
-          Event history would be displayed here. This could include creation events,
-          status changes, lease assignments, and other relevant events.
-        </Text>
-      </CardBody>
-    </Card>
+    <ExporterEventsTab exporter={exporter} />
   );
 
 

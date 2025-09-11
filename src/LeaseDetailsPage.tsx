@@ -125,16 +125,39 @@ const LeaseDetailsPage: React.FC<LeaseDetailsPageProps> = ({ lease, onBack, onEx
   };
 
   const formatDuration = (duration: string): string => {
-    // Convert ISO 8601 duration to human readable format
-    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-    if (!match) return duration;
+    // Handle both ISO 8601 format (PT...H...M...S) and simple format (720h0m0s)
+    let hours = 0, minutes = 0, seconds = 0;
     
-    const hours = parseInt(match[1] || '0');
-    const minutes = parseInt(match[2] || '0');
-    const seconds = parseInt(match[3] || '0');
+    // Try ISO 8601 format first
+    const isoMatch = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (isoMatch) {
+      hours = parseInt(isoMatch[1] || '0');
+      minutes = parseInt(isoMatch[2] || '0');
+      seconds = parseInt(isoMatch[3] || '0');
+    } else {
+      // Try simple format (720h0m0s)
+      const simpleMatch = duration.match(/(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/);
+      if (simpleMatch) {
+        hours = parseInt(simpleMatch[1] || '0');
+        minutes = parseInt(simpleMatch[2] || '0');
+        seconds = parseInt(simpleMatch[3] || '0');
+      } else {
+        return duration; // Return original if no pattern matches
+      }
+    }
     
     const parts = [];
-    if (hours > 0) parts.push(`${hours}h`);
+    
+    // Convert hours to days if >= 24 hours
+    if (hours >= 24) {
+      const days = Math.floor(hours / 24);
+      const remainingHours = hours % 24;
+      parts.push(`${days}d`);
+      if (remainingHours > 0) parts.push(`${remainingHours}h`);
+    } else if (hours > 0) {
+      parts.push(`${hours}h`);
+    }
+    
     if (minutes > 0) parts.push(`${minutes}m`);
     if (seconds > 0) parts.push(`${seconds}s`);
     
