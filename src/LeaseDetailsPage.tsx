@@ -434,88 +434,167 @@ ${lease.status.conditions.map(condition => `  - type: ${condition.type}
     </Card>
   );
 
-  const renderDocumentationTab = (): React.ReactElement => (
-    <Card>
-      <CardTitle>Exporter Documentation - {lease.status.exporterRef?.name || 'No Exporter'}</CardTitle>
-      <CardBody>
-        {lease.status.exporterRef ? (
-          <div>
-            <Text component={TextVariants.h3} style={{ marginBottom: '1rem' }}>
-              Getting Started with {lease.status.exporterRef.name}
-            </Text>
-            <Text component={TextVariants.p} style={{ marginBottom: '1rem' }}>
-              This exporter provides access to a development environment for your project. 
-              Use the Jumpstarter Shell tab to connect and start working.
-            </Text>
-            
-            <Text component={TextVariants.h4} style={{ marginBottom: '0.5rem', marginTop: '1.5rem' }}>
-              Quick Start
-            </Text>
-            <Text component={TextVariants.p} style={{ marginBottom: '1rem' }}>
-              1. Navigate to the Jumpstarter Shell tab to access the terminal
-              2. Use the provided development tools and environment
-              3. Follow the project-specific documentation below
-            </Text>
+  const renderDocumentationTab = (): React.ReactElement => {
+    const deviceName = lease.status.exporterRef?.name || 'unknown';
+    const boardType = lease.status.exporterRef?.name ? 
+      lease.status.exporterRef.name.split('-').slice(0, -2).join('-') : 'unknown';
+    
+    return (
+      <Card>
+        <CardTitle>Documentation</CardTitle>
+        <CardBody>
+          {lease.status.exporterRef ? (
+            <TextContent>
+              <Text component={TextVariants.h3}>Install CLI</Text>
+              <Text component={TextVariants.p}>
+                Install the Jumpstarter CLI tool:
+              </Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                curl -fsSL https://raw.githubusercontent.com/jumpstarter-dev/jumpstarter/main/install.sh | bash -s -- -s release-0.7
+              </pre>
 
-            <Text component={TextVariants.h4} style={{ marginBottom: '0.5rem', marginTop: '1.5rem' }}>
-              Available Resources
-            </Text>
-            <Text component={TextVariants.p} style={{ marginBottom: '1rem' }}>
-              • Development tools and compilers
-              • Project source code and dependencies
-              • Network access for testing and deployment
-              • Persistent storage for your work
-            </Text>
+              <Text component={TextVariants.h3}>Login</Text>
+              <Text component={TextVariants.p}>
+                If you haven't logged in yet, use this command:
+              </Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                jmp login login.jumpstarter-lab.apps.your.cluster.com
+              </pre>
 
-            <Text component={TextVariants.h4} style={{ marginBottom: '0.5rem', marginTop: '1.5rem' }}>
-              Documentation Links
-            </Text>
-            <div style={{ marginBottom: '1rem' }}>
-              <Button 
-                variant={ButtonVariant.link} 
-                component="a" 
-                href="#" 
-                target="_blank"
-                style={{ display: 'block', marginBottom: '0.5rem' }}
-              >
-                Exporter User Guide
-              </Button>
-              <Button 
-                variant={ButtonVariant.link} 
-                component="a" 
-                href="#" 
-                target="_blank"
-                style={{ display: 'block', marginBottom: '0.5rem' }}
-              >
-                Development Environment Setup
-              </Button>
-              <Button 
-                variant={ButtonVariant.link} 
-                component="a" 
-                href="#" 
-                target="_blank"
-                style={{ display: 'block', marginBottom: '0.5rem' }}
-              >
-                Troubleshooting Guide
-              </Button>
-            </div>
+              <Text component={TextVariants.h3}>Getting a Shell</Text>
+              <Text component={TextVariants.p}>
+                To get a shell into this specific device:
+              </Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                jmp shell -l device={deviceName}
+              </pre>
+              
+              <Text component={TextVariants.p}>
+                To get a shell into a free device of this type (not necessarily this one):
+              </Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                jmp shell -l board-type={boardType}
+              </pre>
 
-            <Text component={TextVariants.h4} style={{ marginBottom: '0.5rem', marginTop: '1.5rem' }}>
-              Support
+              <Text component={TextVariants.h3}>Creating Leases</Text>
+              <Text component={TextVariants.p}>
+                To create a more permanent lease:
+              </Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                jmp create lease -l device={deviceName} --duration 1d
+              </pre>
+              
+              <Text component={TextVariants.p}>
+                Remember to delete your lease once you're done:
+              </Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                jmp delete leases "{lease.metadata.name}"
+              </pre>
+
+              <Text component={TextVariants.h3}>Inside the Shell</Text>
+              <Text component={TextVariants.p}>
+                Once inside a shell (you'll see the <code>⚡remote ➤</code> prompt), you can:
+              </Text>
+              
+              <Text component={TextVariants.h4}>Flash firmware:</Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                j storage flash https://location/my-image.img
+              </pre>
+
+              <Text component={TextVariants.h4}>Control power:</Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                j power on
+              </pre>
+
+              <Text component={TextVariants.h4}>Access serial console:</Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                j serial start-console
+              </pre>
+
+              <Text component={TextVariants.h4}>Redirect SSH to localhost:2222:</Text>
+              <pre style={{ 
+                background: '#f5f5f5', 
+                padding: '1rem', 
+                borderRadius: '4px',
+                fontFamily: 'monospace',
+                fontSize: '14px',
+                margin: '0.5rem 0'
+              }}>
+                j ssh forward-tcp 2222
+              </pre>
+            </TextContent>
+          ) : (
+            <Text component={TextVariants.p} style={{ color: 'var(--pf-global--Color--300)' }}>
+              No exporter assigned to this lease. Documentation will be available once an exporter is assigned.
             </Text>
-            <Text component={TextVariants.p}>
-              If you encounter any issues or need assistance, please contact the development team 
-              or check the troubleshooting documentation above.
-            </Text>
-          </div>
-        ) : (
-          <Text component={TextVariants.p} style={{ color: 'var(--pf-global--Color--300)' }}>
-            No exporter assigned to this lease. Documentation will be available once an exporter is assigned.
-          </Text>
-        )}
-      </CardBody>
-    </Card>
-  );
+          )}
+        </CardBody>
+      </Card>
+    );
+  };
 
   const renderTabContent = (): React.ReactElement => {
     switch (activeTab) {

@@ -119,9 +119,27 @@ export interface Lease {
 }
 
 export interface Client {
-  name: string;
-  status: string;
-  // Add other client properties as needed
+  apiVersion: string;
+  kind: string;
+  metadata: {
+    name: string;
+    namespace: string;
+    labels?: Record<string, string>;
+    annotations?: Record<string, string>;
+    resourceVersion?: string;
+    generation?: number;
+    creationTimestamp?: string;
+    uid?: string;
+  };
+  spec: {
+    username: string;
+  };
+  status: {
+    credential?: {
+      name: string;
+    };
+    endpoint?: string;
+  };
 }
 
 export type SortDirection = 'asc' | 'desc';

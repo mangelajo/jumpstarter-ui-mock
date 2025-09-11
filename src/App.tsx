@@ -44,12 +44,13 @@ import LeasesPage from './LeasesPage';
 import ClientsPage from './ClientsPage';
 import ExporterDetailsPage from './ExporterDetailsPage';
 import LeaseDetailsPage from './LeaseDetailsPage';
+import ClientDetailsPage from './ClientDetailsPage';
 import CreateLeasePage from './CreateLeasePage';
-import { Exporter, Lease } from './types';
+import { Exporter, Lease, Client } from './types';
 import { getExporters, getLeases, addLease } from './dataStore';
 import './App.css';
 
-type ActiveItem = 'exporters' | 'leases' | 'clients' | 'exporter-details' | 'lease-details' | 'create-lease';
+type ActiveItem = 'exporters' | 'leases' | 'clients' | 'exporter-details' | 'lease-details' | 'client-details' | 'create-lease';
 
 const App: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(true);
@@ -58,6 +59,7 @@ const App: React.FC = () => {
   const [activeItem, setActiveItem] = useState<ActiveItem>('exporters');
   const [selectedExporter, setSelectedExporter] = useState<Exporter | null>(null);
   const [selectedLease, setSelectedLease] = useState<Lease | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
   useEffect(() => {
@@ -138,6 +140,16 @@ const App: React.FC = () => {
       setSelectedExporter(exporter);
       setActiveItem('exporter-details');
     }
+  };
+
+  const handleClientSelect = (client: Client): void => {
+    setSelectedClient(client);
+    setActiveItem('client-details');
+  };
+
+  const handleBackToClients = (): void => {
+    setActiveItem('clients');
+    setSelectedClient(null);
   };
 
   const handleCreateLease = (): void => {
@@ -308,9 +320,9 @@ const App: React.FC = () => {
       case 'exporters':
         return <ExportersPage onExporterSelect={handleExporterSelect} onLeaseSelect={handleLeaseSelectFromExporter} />;
       case 'leases':
-        return <LeasesPage onLeaseSelect={handleLeaseSelect} onCreateLease={handleCreateLease} refreshTrigger={refreshTrigger} />;
+        return <LeasesPage onLeaseSelect={handleLeaseSelect} onCreateLease={handleCreateLease} onExporterSelect={handleExporterSelectFromLease} refreshTrigger={refreshTrigger} />;
       case 'clients':
-        return <ClientsPage />;
+        return <ClientsPage onClientSelect={handleClientSelect} refreshTrigger={refreshTrigger} />;
       case 'create-lease':
         return (
           <CreateLeasePage 
@@ -347,6 +359,23 @@ const App: React.FC = () => {
               <Text component={TextVariants.h1}>Lease Not Found</Text>
               <Text component={TextVariants.p}>
                 The selected lease could not be found.
+              </Text>
+            </TextContent>
+          </PageSection>
+        );
+      case 'client-details':
+        return selectedClient ? (
+          <ClientDetailsPage 
+            client={selectedClient} 
+            onBack={handleBackToClients}
+            onLeaseSelect={handleLeaseSelect}
+          />
+        ) : (
+          <PageSection variant={PageSectionVariants.light}>
+            <TextContent>
+              <Text component={TextVariants.h1}>Client Not Found</Text>
+              <Text component={TextVariants.p}>
+                The selected client could not be found.
               </Text>
             </TextContent>
           </PageSection>

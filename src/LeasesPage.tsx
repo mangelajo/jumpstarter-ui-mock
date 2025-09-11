@@ -48,11 +48,12 @@ import { getLeases } from './dataStore';
 interface LeasesPageProps {
   onLeaseSelect: (lease: Lease) => void;
   onCreateLease: () => void;
+  onExporterSelect?: (exporterName: string) => void;
   refreshTrigger?: number; // Add refresh trigger prop
 }
 
 
-const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect, onCreateLease, refreshTrigger }) => {
+const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect, onCreateLease, onExporterSelect, refreshTrigger }) => {
   const [searchValue, setSearchValue] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState<boolean>(false);
@@ -358,9 +359,16 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect, onCreateLease, r
               </Td>
               <Td dataLabel="Exporter">
                 {lease.status.exporterRef ? (
-                  <Text component={TextVariants.a} href="#" style={{ fontWeight: 'bold' }}>
+                  <Button
+                    variant={ButtonVariant.link}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onExporterSelect?.(lease.status.exporterRef!.name);
+                    }}
+                    style={{ fontWeight: 'bold', padding: 0 }}
+                  >
                     {lease.status.exporterRef.name}
-                  </Text>
+                  </Button>
                 ) : (
                   <Text component={TextVariants.p} style={{ color: 'var(--pf-global--Color--300)' }}>
                     Not assigned

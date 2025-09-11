@@ -1,4 +1,4 @@
-import { Exporter, Lease } from './types';
+import { Exporter, Lease, Client } from './types';
 
 // Mutable data store
 let mockExportersData: Exporter[] = [
@@ -7254,9 +7254,179 @@ let mockLeasesData: Lease[] =  [
     }
 ];
 
+// Mock clients data - derived from actual lease data
+let mockClientsData: Client[] = [
+    {
+        apiVersion: "jumpstarter.dev/v1alpha1",
+        kind: "Client",
+        metadata: {
+            name: "bzlotnik",
+            namespace: "jumpstarter-lab",
+            labels: {
+                "environment": "production",
+                "team": "platform"
+            },
+            annotations: {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            creationTimestamp: "2025-08-18T06:26:11Z",
+            generation: 1,
+            resourceVersion: "64930160",
+            uid: "bzlotnik-client-uid"
+        },
+        spec: {
+            username: "bzlotnik"
+        },
+        status: {
+            credential: {
+                name: "bzlotnik-credential"
+            },
+            endpoint: "grpc.jumpstarter-lab.apps.mycluster.com:443"
+        }
+    },
+    {
+        apiVersion: "jumpstarter.dev/v1alpha1",
+        kind: "Client",
+        metadata: {
+            name: "sberg",
+            namespace: "jumpstarter-lab",
+            labels: {
+                "environment": "production",
+                "team": "platform"
+            },
+            annotations: {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            creationTimestamp: "2025-09-02T21:13:58Z",
+            generation: 1,
+            resourceVersion: "67541231",
+            uid: "sberg-client-uid"
+        },
+        spec: {
+            username: "sberg"
+        },
+        status: {
+            credential: {
+                name: "sberg-credential"
+            },
+            endpoint: "grpc.jumpstarter-lab.apps.mycluster.com:443"
+        }
+    },
+    {
+        apiVersion: "jumpstarter.dev/v1alpha1",
+        kind: "Client",
+        metadata: {
+            name: "mskrivan",
+            namespace: "jumpstarter-lab",
+            labels: {
+                "environment": "production",
+                "team": "platform"
+            },
+            annotations: {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            creationTimestamp: "2025-09-05T13:27:37Z",
+            generation: 1,
+            resourceVersion: "67502207",
+            uid: "mskrivan-client-uid"
+        },
+        spec: {
+            username: "mskrivan"
+        },
+        status: {
+            credential: {
+                name: "mskrivan-credential"
+            },
+            endpoint: "grpc.jumpstarter-lab.apps.mycluster.com:443"
+        }
+    },
+    {
+        apiVersion: "jumpstarter.dev/v1alpha1",
+        kind: "Client",
+        metadata: {
+            name: "sbertram",
+            namespace: "jumpstarter-lab",
+            labels: {
+                "environment": "production",
+                "team": "platform"
+            },
+            annotations: {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            creationTimestamp: "2025-09-10T17:25:57Z",
+            generation: 1,
+            resourceVersion: "74007664",
+            uid: "sbertram-client-uid"
+        },
+        spec: {
+            username: "sbertram"
+        },
+        status: {
+            credential: {
+                name: "sbertram-credential"
+            },
+            endpoint: "grpc.jumpstarter-lab.apps.mycluster.com:443"
+        }
+    },
+    {
+        apiVersion: "jumpstarter.dev/v1alpha1",
+        kind: "Client",
+        metadata: {
+            name: "gjacob",
+            namespace: "jumpstarter-lab",
+            labels: {
+                "environment": "production",
+                "team": "platform"
+            },
+            annotations: {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            creationTimestamp: "2025-09-10T15:37:52Z",
+            generation: 1,
+            resourceVersion: "74101503",
+            uid: "gjacob-client-uid"
+        },
+        spec: {
+            username: "gjacob"
+        },
+        status: {
+            endpoint: "grpc.jumpstarter-lab.apps.mycluster.com:443"
+        }
+    },
+    {
+        apiVersion: "jumpstarter.dev/v1alpha1",
+        kind: "Client",
+        metadata: {
+            name: "majopela",
+            namespace: "jumpstarter-lab",
+            labels: {
+                "environment": "production",
+                "team": "platform"
+            },
+            annotations: {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            creationTimestamp: "2025-09-11T08:34:22Z",
+            generation: 1,
+            resourceVersion: "74802984",
+            uid: "majopela-client-uid"
+        },
+        spec: {
+            username: "majopela"
+        },
+        status: {
+            credential: {
+                name: "majopela-credential"
+            },
+            endpoint: "grpc.jumpstarter-lab.apps.mycluster.com:443"
+        }
+    }
+];
+
 // Data management functions
 export const getExporters = (): Exporter[] => [...mockExportersData];
 export const getLeases = (): Lease[] => [...mockLeasesData];
+export const getClients = (): Client[] => [...mockClientsData];
 
 export const addLease = (lease: Lease): void => {
   mockLeasesData = [lease, ...mockLeasesData];
@@ -7288,6 +7458,22 @@ export const deleteExporter = (exporterName: string): void => {
   mockExportersData = mockExportersData.filter(e => e.metadata.name !== exporterName);
 };
 
+export const addClient = (client: Client): void => {
+  mockClientsData = [client, ...mockClientsData];
+};
+
+export const updateClient = (updatedClient: Client): void => {
+  const index = mockClientsData.findIndex(c => c.metadata.name === updatedClient.metadata.name);
+  if (index !== -1) {
+    mockClientsData[index] = updatedClient;
+  }
+};
+
+export const deleteClient = (clientName: string): void => {
+  mockClientsData = mockClientsData.filter(c => c.metadata.name !== clientName);
+};
+
 // Backward compatibility exports
 export const mockExporters = mockExportersData;
 export const mockLeases = mockLeasesData;
+export const mockClients = mockClientsData;
