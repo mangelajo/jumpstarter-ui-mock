@@ -344,13 +344,12 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect, onLease
                     variant={ButtonVariant.link} 
                     onClick={() => onLeaseSelect(exporter.status.leaseRef!.name)}
                     style={{ 
-                      color: 'var(--pf-global--Color--300)', 
                       padding: 0, 
                       textAlign: 'left',
                       fontSize: 'var(--pf-global--FontSize--sm)'
                     }}
                   >
-                    {exporter.status.leaseRef.name}
+                    ...{exporter.status.leaseRef.name.slice(-8)}
                   </Button>
                 ) : (
                   <Badge>None</Badge>

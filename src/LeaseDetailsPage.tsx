@@ -82,7 +82,7 @@ const LeaseDetailsPage: React.FC<LeaseDetailsPageProps> = ({ lease, onBack, onEx
 
   const handleTabClick = (event: React.MouseEvent, eventKey: string | number): void => {
     const availableTabs: LeaseDetailsTab[] = isLeaseActive 
-      ? ['details', 'yaml', 'events', 'shell'] 
+      ? ['details', 'yaml', 'events', 'shell', 'documentation'] 
       : ['details', 'yaml', 'events'];
     const tabIndex = typeof eventKey === 'number' ? eventKey : availableTabs.indexOf(eventKey as LeaseDetailsTab);
     if (tabIndex >= 0 && tabIndex < availableTabs.length) {
@@ -434,6 +434,89 @@ ${lease.status.conditions.map(condition => `  - type: ${condition.type}
     </Card>
   );
 
+  const renderDocumentationTab = (): React.ReactElement => (
+    <Card>
+      <CardTitle>Exporter Documentation - {lease.status.exporterRef?.name || 'No Exporter'}</CardTitle>
+      <CardBody>
+        {lease.status.exporterRef ? (
+          <div>
+            <Text component={TextVariants.h3} style={{ marginBottom: '1rem' }}>
+              Getting Started with {lease.status.exporterRef.name}
+            </Text>
+            <Text component={TextVariants.p} style={{ marginBottom: '1rem' }}>
+              This exporter provides access to a development environment for your project. 
+              Use the Jumpstarter Shell tab to connect and start working.
+            </Text>
+            
+            <Text component={TextVariants.h4} style={{ marginBottom: '0.5rem', marginTop: '1.5rem' }}>
+              Quick Start
+            </Text>
+            <Text component={TextVariants.p} style={{ marginBottom: '1rem' }}>
+              1. Navigate to the Jumpstarter Shell tab to access the terminal
+              2. Use the provided development tools and environment
+              3. Follow the project-specific documentation below
+            </Text>
+
+            <Text component={TextVariants.h4} style={{ marginBottom: '0.5rem', marginTop: '1.5rem' }}>
+              Available Resources
+            </Text>
+            <Text component={TextVariants.p} style={{ marginBottom: '1rem' }}>
+              • Development tools and compilers
+              • Project source code and dependencies
+              • Network access for testing and deployment
+              • Persistent storage for your work
+            </Text>
+
+            <Text component={TextVariants.h4} style={{ marginBottom: '0.5rem', marginTop: '1.5rem' }}>
+              Documentation Links
+            </Text>
+            <div style={{ marginBottom: '1rem' }}>
+              <Button 
+                variant={ButtonVariant.link} 
+                component="a" 
+                href="#" 
+                target="_blank"
+                style={{ display: 'block', marginBottom: '0.5rem' }}
+              >
+                Exporter User Guide
+              </Button>
+              <Button 
+                variant={ButtonVariant.link} 
+                component="a" 
+                href="#" 
+                target="_blank"
+                style={{ display: 'block', marginBottom: '0.5rem' }}
+              >
+                Development Environment Setup
+              </Button>
+              <Button 
+                variant={ButtonVariant.link} 
+                component="a" 
+                href="#" 
+                target="_blank"
+                style={{ display: 'block', marginBottom: '0.5rem' }}
+              >
+                Troubleshooting Guide
+              </Button>
+            </div>
+
+            <Text component={TextVariants.h4} style={{ marginBottom: '0.5rem', marginTop: '1.5rem' }}>
+              Support
+            </Text>
+            <Text component={TextVariants.p}>
+              If you encounter any issues or need assistance, please contact the development team 
+              or check the troubleshooting documentation above.
+            </Text>
+          </div>
+        ) : (
+          <Text component={TextVariants.p} style={{ color: 'var(--pf-global--Color--300)' }}>
+            No exporter assigned to this lease. Documentation will be available once an exporter is assigned.
+          </Text>
+        )}
+      </CardBody>
+    </Card>
+  );
+
   const renderTabContent = (): React.ReactElement => {
     switch (activeTab) {
       case 'details':
@@ -444,6 +527,8 @@ ${lease.status.conditions.map(condition => `  - type: ${condition.type}
         return renderEventsTab();
       case 'shell':
         return renderShellTab();
+      case 'documentation':
+        return renderDocumentationTab();
       default:
         return renderDetailsTab();
     }
@@ -543,7 +628,10 @@ ${lease.status.conditions.map(condition => `  - type: ${condition.type}
           <Tab eventKey="yaml" title={<TabTitleText>YAML</TabTitleText>} />
           <Tab eventKey="events" title={<TabTitleText>Events</TabTitleText>} />
           {isLeaseActive ? (
-            <Tab eventKey="shell" title={<TabTitleText>Jumpstarter Shell</TabTitleText>} />
+            <>
+              <Tab eventKey="shell" title={<TabTitleText>Jumpstarter Shell</TabTitleText>} />
+              <Tab eventKey="documentation" title={<TabTitleText>Documentation</TabTitleText>} />
+            </>
           ) : null}
         </Tabs>
         

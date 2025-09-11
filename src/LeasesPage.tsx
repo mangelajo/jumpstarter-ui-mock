@@ -353,7 +353,7 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect, onCreateLease, r
                   onClick={() => onLeaseSelect(lease)}
                   style={{ fontWeight: 'bold', padding: 0, textAlign: 'left' }}
                 >
-                  {lease.metadata.name.substring(0, 8)}...
+                  ...{lease.metadata.name.slice(-8)}
                 </Button>
               </Td>
               <Td dataLabel="Exporter">
@@ -384,7 +384,7 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect, onCreateLease, r
               <Td dataLabel="Begin Time">
                 {formatDateTime(lease.status.beginTime)}
               </Td>
-              <Td dataLabel="Actions">
+              <Td isActionCell>
                 <Dropdown
                   isOpen={openDropdownId === lease.metadata.name}
                   onOpenChange={(isOpen) => setOpenDropdownId(isOpen ? lease.metadata.name : null)}
@@ -395,9 +395,8 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect, onCreateLease, r
                       variant="plain"
                       onClick={() => setOpenDropdownId(openDropdownId === lease.metadata.name ? null : lease.metadata.name)}
                       isExpanded={openDropdownId === lease.metadata.name}
-                      icon={<EllipsisVIcon />}
                     >
-                      Actions
+                      <EllipsisVIcon />
                     </MenuToggle>
                   )}
                 >
@@ -405,7 +404,10 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect, onCreateLease, r
                     {actionItems.map((item) => (
                       <DropdownItem
                         key={item.key}
-                        onClick={item.onClick}
+                        onClick={() => {
+                          item.onClick();
+                          setOpenDropdownId(null);
+                        }}
                       >
                         {item.label}
                       </DropdownItem>

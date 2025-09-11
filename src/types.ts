@@ -130,7 +130,7 @@ export type ActiveItem = 'exporters' | 'leases' | 'clients' | 'shell';
 export type ExporterDetailsTab = 'details' | 'documentation' | 'metrics' | 'yaml' | 'events';
 
 // Lease details page types
-export type LeaseDetailsTab = 'details' | 'yaml' | 'events' | 'shell';
+export type LeaseDetailsTab = 'details' | 'yaml' | 'events' | 'shell' | 'documentation';
 
 // Event handler types
 export type DropdownSelectHandler = (event: React.SyntheticEvent, value: string) => void;
