@@ -7,13 +7,48 @@ export interface Exporter {
 }
 
 export interface Lease {
-  name: string;
-  status: 'Ready' | 'Pending' | 'Error';
-  client: string;
-  exporter?: string;
-  duration: string;
-  effectiveBeginTime: string;
-  selector: Record<string, string>;
+  apiVersion: string;
+  kind: string;
+  metadata: {
+    name: string;
+    namespace: string;
+    generation?: number;
+    creationTimestamp?: string;
+    uid?: string;
+  };
+  spec: {
+    clientRef: {
+      name: string;
+    };
+    duration: string;
+    release?: boolean;
+    selector: {
+      matchLabels?: Record<string, string>;
+      matchExpressions?: Array<{
+        key: string;
+        operator: 'In' | 'NotIn' | 'Exists' | 'DoesNotExist';
+        values?: string[];
+      }>;
+    };
+  };
+  status: {
+    beginTime?: string;
+    endTime?: string;
+    ended: boolean;
+    exporterRef?: {
+      name: string;
+    };
+    priority?: number;
+    spotAccess?: boolean;
+    conditions?: Array<{
+      type: string;
+      status: 'True' | 'False' | 'Unknown';
+      lastTransitionTime: string;
+      reason: string;
+      message: string;
+      observedGeneration?: number;
+    }>;
+  };
 }
 
 export interface Client {
@@ -48,7 +83,10 @@ export type StatusBadgeVariant = 'success' | 'info' | 'warning' | 'danger' | 'de
 export type ActiveItem = 'exporters' | 'leases' | 'clients' | 'shell';
 
 // Exporter details page types
-export type ExporterDetailsTab = 'details' | 'metrics' | 'yaml' | 'events' | 'shell';
+export type ExporterDetailsTab = 'details' | 'metrics' | 'yaml' | 'events';
+
+// Lease details page types
+export type LeaseDetailsTab = 'details' | 'yaml' | 'events' | 'shell';
 
 // Event handler types
 export type DropdownSelectHandler = (event: React.SyntheticEvent, value: string) => void;

@@ -38,62 +38,129 @@ import {
   PlusIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  TimesCircleIcon,
   ClockIcon
 } from '@patternfly/react-icons';
 import { Lease, ActionItem, TableColumn, SortDirection } from './types';
 
-// Mock data based on the provided JSON
+interface LeasesPageProps {
+  onLeaseSelect: (lease: Lease) => void;
+}
+
+// Mock data based on the Lease CRD structure
 const mockLeases: Lease[] = [
   {
-    name: "0198bbdb-5825-785a-ae18-c55830627ce7",
-    status: "Ready",
-    client: "user-123",
-    exporter: "qti-snapdragon-ride4-sa8775p-03",
-    duration: "2h30m",
-    effectiveBeginTime: "2024-01-15T10:30:00Z",
-    selector: {
-      board: "qti-snapdragon-ride4-sa8775p",
-      location: "bos2"
+    apiVersion: "jumpstarter.dev/v1alpha1",
+    kind: "Lease",
+    metadata: {
+      name: "0198bbdb-5825-785a-ae18-c55830627ce7",
+      namespace: "jumpstarter-lab",
+      creationTimestamp: "2024-01-15T10:30:00Z",
+      generation: 1,
+      uid: "0198bbdb-5825-785a-ae18-c55830627ce7"
+    },
+    spec: {
+      clientRef: { name: "user-123" },
+      duration: "PT2H30M",
+      selector: {
+        matchLabels: {
+          board: "qti-snapdragon-ride4-sa8775p",
+          location: "bos2"
+        }
+      }
+    },
+    status: {
+      ended: false,
+      beginTime: "2024-01-15T10:30:00Z",
+      exporterRef: { name: "qti-snapdragon-ride4-sa8775p-03" },
+      priority: 1,
+      spotAccess: false,
+      conditions: [
+        {
+          type: "Ready",
+          status: "True",
+          lastTransitionTime: "2024-01-15T10:30:00Z",
+          reason: "LeaseAcquired",
+          message: "Lease successfully acquired"
+        }
+      ]
     }
   },
   {
-    name: "0198bbdb-5825-785a-ae18-c55830627ce8",
-    status: "Pending",
-    client: "user-456",
-    exporter: "nxp-imx8qxp-mek-eballetbo-01",
-    duration: "1h45m",
-    effectiveBeginTime: "2024-01-15T14:15:00Z",
-    selector: {
-      board: "nxp-imx8qxp-mek",
-      location: "eballetbo-desk"
+    apiVersion: "jumpstarter.dev/v1alpha1",
+    kind: "Lease",
+    metadata: {
+      name: "0198bbdb-5825-785a-ae18-c55830627ce8",
+      namespace: "jumpstarter-lab",
+      creationTimestamp: "2024-01-15T14:15:00Z",
+      generation: 1,
+      uid: "0198bbdb-5825-785a-ae18-c55830627ce8"
+    },
+    spec: {
+      clientRef: { name: "user-456" },
+      duration: "PT1H45M",
+      selector: {
+        matchLabels: {
+          board: "nxp-imx8qxp-mek",
+          location: "eballetbo-desk"
+        }
+      }
+    },
+    status: {
+      ended: false,
+      priority: 2,
+      spotAccess: true,
+      conditions: [
+        {
+          type: "Pending",
+          status: "True",
+          lastTransitionTime: "2024-01-15T14:15:00Z",
+          reason: "WaitingForExporter",
+          message: "Waiting for available exporter"
+        }
+      ]
     }
   },
   {
-    name: "0198bbdb-5825-785a-ae18-c55830627ce9",
-    status: "Ready",
-    client: "user-789",
-    duration: "3h15m",
-    effectiveBeginTime: "2024-01-15T09:00:00Z",
-    selector: {
-      board: "renesas-rcar-s4",
-      location: "bos2"
-    }
-  },
-  {
-    name: "0198bbdb-5825-785a-ae18-c55830627cea",
-    status: "Error",
-    client: "user-101",
-    exporter: "ti-jacinto-j784s4xevm-01",
-    duration: "0h5m",
-    effectiveBeginTime: "2024-01-15T16:45:00Z",
-    selector: {
-      board: "j784s4evm",
-      location: "bos2"
+    apiVersion: "jumpstarter.dev/v1alpha1",
+    kind: "Lease",
+    metadata: {
+      name: "0198bbdb-5825-785a-ae18-c55830627ce9",
+      namespace: "jumpstarter-lab",
+      creationTimestamp: "2024-01-15T09:00:00Z",
+      generation: 1,
+      uid: "0198bbdb-5825-785a-ae18-c55830627ce9"
+    },
+    spec: {
+      clientRef: { name: "user-789" },
+      duration: "PT3H15M",
+      selector: {
+        matchLabels: {
+          board: "renesas-rcar-s4",
+          location: "bos2"
+        }
+      }
+    },
+    status: {
+      ended: false,
+      beginTime: "2024-01-15T09:00:00Z",
+      exporterRef: { name: "renesas-rcar-s4-01" },
+      priority: 1,
+      spotAccess: false,
+      conditions: [
+        {
+          type: "Ready",
+          status: "True",
+          lastTransitionTime: "2024-01-15T09:00:00Z",
+          reason: "LeaseAcquired",
+          message: "Lease successfully acquired"
+        }
+      ]
     }
   }
 ];
 
-const LeasesPage: React.FC = () => {
+const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
   const [searchValue, setSearchValue] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState<boolean>(false);
@@ -101,157 +168,158 @@ const LeasesPage: React.FC = () => {
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
-  const statusOptions: string[] = ['All', 'Ready', 'Pending', 'Error'];
-
-  const getStatusIcon = (status: Lease['status']): React.ReactElement | null => {
-    switch (status) {
-      case 'Ready':
-        return <CheckCircleIcon style={{ color: 'var(--pf-global--success-color--100)' }} />;
-      case 'Pending':
-        return <ClockIcon style={{ color: 'var(--pf-global--warning-color--100)' }} />;
-      case 'Error':
-        return <ExclamationTriangleIcon style={{ color: 'var(--pf-global--danger-color--100)' }} />;
-      default:
-        return null;
+  const getStatusIcon = (lease: Lease) => {
+    if (lease.status.ended) {
+      return <TimesCircleIcon style={{ color: '#6a6e73' }} />;
     }
+    if (lease.status.exporterRef) {
+      return <CheckCircleIcon style={{ color: '#52c41a' }} />;
+    }
+    return <ClockIcon style={{ color: '#faad14' }} />;
   };
 
-  const getStatusBadgeVariant = (status: Lease['status']): 'success' | 'warning' | 'danger' | 'default' => {
-    switch (status) {
-      case 'Ready':
-        return 'success';
-      case 'Pending':
-        return 'warning';
-      case 'Error':
-        return 'danger';
-      default:
-        return 'default';
+  const getStatusText = (lease: Lease): string => {
+    if (lease.status.ended) {
+      return 'Ended';
     }
+    if (lease.status.exporterRef) {
+      return 'Active';
+    }
+    return 'Pending';
   };
 
   const formatDuration = (duration: string): string => {
-    return duration;
+    // Convert ISO 8601 duration to human readable format
+    const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return duration;
+    
+    const hours = parseInt(match[1] || '0');
+    const minutes = parseInt(match[2] || '0');
+    const seconds = parseInt(match[3] || '0');
+    
+    const parts = [];
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    if (seconds > 0) parts.push(`${seconds}s`);
+    
+    return parts.join(' ') || '0s';
   };
 
-  const formatDateTime = (dateTime: string): string => {
-    const date = new Date(dateTime);
-    return date.toLocaleString();
+  const formatDateTime = (dateTime?: string): string => {
+    if (!dateTime) return 'N/A';
+    return new Date(dateTime).toLocaleString();
   };
 
-  const shortenUUID = (uuid: string): string => {
-    return uuid.substring(uuid.length - 8);
-  };
+  const columns: TableColumn[] = [
+    { key: 'name', title: 'Lease ID', sortable: true },
+    { key: 'exporter', title: 'Exporter', sortable: true },
+    { key: 'client', title: 'Client', sortable: true },
+    { key: 'status', title: 'Status', sortable: true },
+    { key: 'duration', title: 'Duration', sortable: true },
+    { key: 'beginTime', title: 'Begin Time', sortable: true },
+    { key: 'actions', title: 'Actions', sortable: false }
+  ];
 
   const filteredLeases = useMemo(() => {
     return mockLeases.filter(lease => {
-      const matchesSearch = lease.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-                           lease.client.toLowerCase().includes(searchValue.toLowerCase()) ||
-                           (lease.exporter && lease.exporter.toLowerCase().includes(searchValue.toLowerCase()));
-      const matchesStatus = statusFilter === 'All' || lease.status === statusFilter;
+      const matchesSearch = 
+        lease.metadata.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        lease.spec.clientRef.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        (lease.status.exporterRef?.name || '').toLowerCase().includes(searchValue.toLowerCase());
+      
+      const matchesStatus = statusFilter === 'All' || getStatusText(lease) === statusFilter;
+      
       return matchesSearch && matchesStatus;
     });
   }, [searchValue, statusFilter]);
 
   const sortedLeases = useMemo(() => {
     return [...filteredLeases].sort((a, b) => {
-      const aValue = a[sortBy as keyof Lease];
-      const bValue = b[sortBy as keyof Lease];
-      
-      // Handle undefined values
-      if (aValue === undefined && bValue === undefined) return 0;
-      if (aValue === undefined) return 1;
-      if (bValue === undefined) return -1;
-      
-      if (sortDirection === 'asc') {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortBy) {
+        case 'name':
+          aValue = a.metadata.name;
+          bValue = b.metadata.name;
+          break;
+        case 'exporter':
+          aValue = a.status.exporterRef?.name || '';
+          bValue = b.status.exporterRef?.name || '';
+          break;
+        case 'client':
+          aValue = a.spec.clientRef.name;
+          bValue = b.spec.clientRef.name;
+          break;
+        case 'status':
+          aValue = getStatusText(a);
+          bValue = getStatusText(b);
+          break;
+        case 'duration':
+          aValue = a.spec.duration;
+          bValue = b.spec.duration;
+          break;
+        case 'beginTime':
+          aValue = a.status.beginTime || '';
+          bValue = b.status.beginTime || '';
+          break;
+        default:
+          return 0;
       }
+
+      if (aValue === undefined || bValue === undefined) return 0;
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortDirection === 'asc' 
+          ? aValue.localeCompare(bValue)
+          : bValue.localeCompare(aValue);
+      }
+
+      return sortDirection === 'asc' 
+        ? (aValue < bValue ? -1 : aValue > bValue ? 1 : 0)
+        : (aValue > bValue ? -1 : aValue < bValue ? 1 : 0);
     });
   }, [filteredLeases, sortBy, sortDirection]);
 
-  const onSort = (column: string): void => {
-    if (sortBy === column) {
+  const handleSort = (columnKey: string): void => {
+    if (columnKey === sortBy) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
     } else {
-      setSortBy(column);
+      setSortBy(columnKey);
       setSortDirection('asc');
     }
   };
 
-  const getSortIcon = (column: string): React.ReactElement | null => {
-    if (sortBy !== column) return null;
-    return <SortAmountDownIcon style={{ transform: sortDirection === 'desc' ? 'rotate(180deg)' : 'none' }} />;
+  const handleSearchChange = (event: React.SyntheticEvent, value: string): void => {
+    setSearchValue(value);
   };
 
-  const renderSelector = (selector: Record<string, string>): React.ReactElement => {
-    const selectorEntries = Object.entries(selector).slice(0, 2); // Show first 2 selector entries
-    const remainingCount = Object.keys(selector).length - 2;
-    
-    return (
-      <LabelGroup>
-        {selectorEntries.map(([key, value]) => (
-          <Label key={key} color="blue">
-            {key}={value}
-          </Label>
-        ))}
-        {remainingCount > 0 && (
-          <Label color="grey">
-            +{remainingCount} more
-          </Label>
-        )}
-      </LabelGroup>
-    );
+  const handleStatusFilterToggle = (): void => {
+    setIsStatusDropdownOpen(!isStatusDropdownOpen);
   };
 
-  const actionItems = (row: Lease): ActionItem[] => [
+  const handleStatusFilterSelect = (event?: React.MouseEvent<Element, MouseEvent>, value?: string | number): void => {
+    if (value) {
+      setStatusFilter(value as string);
+      setIsStatusDropdownOpen(false);
+    }
+  };
+
+  const actionItems: ActionItem[] = [
+    {
+      key: 'shell',
+      label: 'Jumpstarter Shell',
+      onClick: () => console.log('Open shell for lease')
+    },
     {
       key: 'release',
       label: 'Release',
-      onClick: () => console.log(`Release action for ${row.name}`)
+      onClick: () => console.log('Release lease')
     },
     {
       key: 'extend',
       label: 'Extend',
-      onClick: () => console.log(`Extend action for ${row.name}`)
-    }
-  ];
-
-  const columns: TableColumn[] = [
-    {
-      key: 'name',
-      title: 'Lease ID',
-      sortable: true
-    },
-    {
-      key: 'exporter',
-      title: 'Exporter',
-      sortable: true
-    },
-    {
-      key: 'status',
-      title: 'Status',
-      sortable: true
-    },
-    {
-      key: 'client',
-      title: 'Client',
-      sortable: true
-    },
-    {
-      key: 'duration',
-      title: 'Duration',
-      sortable: true
-    },
-    {
-      key: 'effectiveBeginTime',
-      title: 'Effective Begin Time',
-      sortable: true
-    },
-    {
-      key: 'selector',
-      title: 'Selector',
-      sortable: false
+      onClick: () => console.log('Extend lease')
     }
   ];
 
@@ -261,7 +329,7 @@ const LeasesPage: React.FC = () => {
         <Title headingLevel="h1" size="2xl">Leases</Title>
         <TextContent>
           <Text component={TextVariants.p}>
-            Manage and monitor active leases for your exporters.
+            Manage and monitor lease assignments for your Jumpstarter resources.
           </Text>
         </TextContent>
       </div>
@@ -277,143 +345,127 @@ const LeasesPage: React.FC = () => {
               <Dropdown
                 isOpen={isStatusDropdownOpen}
                 onOpenChange={setIsStatusDropdownOpen}
-                onSelect={(event, value) => {
-                  setStatusFilter(value as string);
-                  setIsStatusDropdownOpen(false);
-                }}
+                onSelect={handleStatusFilterSelect}
                 toggle={(toggleRef) => (
                   <MenuToggle
                     ref={toggleRef}
-                    onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
+                    onClick={handleStatusFilterToggle}
                     isExpanded={isStatusDropdownOpen}
                     icon={<FilterIcon />}
                   >
-                    Status
+                    Status: {statusFilter}
                   </MenuToggle>
                 )}
               >
                 <DropdownList>
-                  {statusOptions.map(option => (
-                    <DropdownItem key={option} value={option}>
-                      {option}
-                    </DropdownItem>
-                  ))}
+                  <DropdownItem value="All">All</DropdownItem>
+                  <DropdownItem value="Active">Active</DropdownItem>
+                  <DropdownItem value="Pending">Pending</DropdownItem>
+                  <DropdownItem value="Ended">Ended</DropdownItem>
                 </DropdownList>
               </Dropdown>
             </ToolbarFilter>
-          </ToolbarGroup>
-          <ToolbarGroup>
             <ToolbarItem>
               <SearchInput
                 placeholder="Search by lease ID, exporter, or client..."
                 value={searchValue}
-                onChange={(event, value) => setSearchValue(value as string)}
+                onChange={handleSearchChange}
                 onClear={() => setSearchValue('')}
               />
             </ToolbarItem>
           </ToolbarGroup>
-          <ToolbarItem>
-            <Button variant={ButtonVariant.primary}>
-              <PlusIcon /> Create Lease
-            </Button>
-          </ToolbarItem>
+          <ToolbarGroup>
+            <ToolbarItem>
+              <Button variant={ButtonVariant.primary} icon={<PlusIcon />}>
+                Create Lease
+              </Button>
+            </ToolbarItem>
+          </ToolbarGroup>
         </ToolbarContent>
       </Toolbar>
 
-      <Table aria-label="Leases table">
+      <Table>
         <Thead>
           <Tr>
-            {columns.map(column => (
+            {columns.map((column) => (
               <Th
                 key={column.key}
-                sort={column.sortable ? {
+                sort={{
                   sortBy: { index: columns.findIndex(c => c.key === column.key), direction: sortDirection },
-                  onSort: () => onSort(column.key),
+                  onSort: () => handleSort(column.key),
                   columnIndex: columns.findIndex(c => c.key === column.key)
-                } : undefined}
+                }}
+                style={{ minWidth: column.key === 'actions' ? '80px' : undefined }}
               >
                 {column.title}
-                {column.sortable && getSortIcon(column.key)}
               </Th>
             ))}
-            <Th style={{ minWidth: '80px' }}>Actions</Th>
           </Tr>
         </Thead>
         <Tbody>
           {sortedLeases.map((lease, index) => (
-            <Tr key={lease.name}>
+            <Tr key={lease.metadata.name}>
               <Td dataLabel="Lease ID">
-                <Text 
-                  component={TextVariants.a} 
-                  href="#" 
-                  style={{ fontWeight: 'bold' }}
-                  title={lease.name}
+                <Button 
+                  variant={ButtonVariant.link} 
+                  onClick={() => onLeaseSelect(lease)}
+                  style={{ fontWeight: 'bold', padding: 0, textAlign: 'left' }}
                 >
-                  ...{shortenUUID(lease.name)}
-                </Text>
+                  {lease.metadata.name.substring(0, 8)}...
+                </Button>
               </Td>
               <Td dataLabel="Exporter">
-                {lease.exporter ? (
+                {lease.status.exporterRef ? (
                   <Text component={TextVariants.a} href="#" style={{ fontWeight: 'bold' }}>
-                    {lease.exporter}
+                    {lease.status.exporterRef.name}
                   </Text>
                 ) : (
-                  <Text component={TextVariants.small} style={{ color: 'var(--pf-global--Color--300)' }}>
+                  <Text component={TextVariants.p} style={{ color: 'var(--pf-global--Color--300)' }}>
                     Not assigned
                   </Text>
                 )}
               </Td>
+              <Td dataLabel="Client">
+                {lease.spec.clientRef.name}
+              </Td>
               <Td dataLabel="Status">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  {getStatusIcon(lease.status)}
-                  <Badge isRead={lease.status === 'Ready'}>
-                    {lease.status}
+                  {getStatusIcon(lease)}
+                  <Badge isRead={getStatusText(lease) === 'Active'}>
+                    {getStatusText(lease)}
                   </Badge>
                 </div>
               </Td>
-              <Td dataLabel="Client">
-                <Text component={TextVariants.a} href="#" style={{ fontWeight: 'bold' }}>
-                  {lease.client}
-                </Text>
-              </Td>
               <Td dataLabel="Duration">
-                <Text component={TextVariants.small}>
-                  {formatDuration(lease.duration)}
-                </Text>
+                {formatDuration(lease.spec.duration)}
               </Td>
-              <Td dataLabel="Effective Begin Time">
-                <Text component={TextVariants.small}>
-                  {formatDateTime(lease.effectiveBeginTime)}
-                </Text>
+              <Td dataLabel="Begin Time">
+                {formatDateTime(lease.status.beginTime)}
               </Td>
-              <Td dataLabel="Selector">
-                {renderSelector(lease.selector)}
-              </Td>
-              <Td isActionCell>
+              <Td dataLabel="Actions">
                 <Dropdown
-                  isOpen={openDropdownId === lease.name}
-                  onOpenChange={(isOpen) => setOpenDropdownId(isOpen ? lease.name : null)}
+                  isOpen={openDropdownId === lease.metadata.name}
+                  onOpenChange={(isOpen) => setOpenDropdownId(isOpen ? lease.metadata.name : null)}
+                  onSelect={() => setOpenDropdownId(null)}
                   toggle={(toggleRef) => (
                     <MenuToggle
                       ref={toggleRef}
                       variant="plain"
-                      onClick={() => setOpenDropdownId(openDropdownId === lease.name ? null : lease.name)}
-                      isExpanded={openDropdownId === lease.name}
+                      onClick={() => setOpenDropdownId(openDropdownId === lease.metadata.name ? null : lease.metadata.name)}
+                      isExpanded={openDropdownId === lease.metadata.name}
+                      icon={<EllipsisVIcon />}
                     >
-                      <EllipsisVIcon />
+                      Actions
                     </MenuToggle>
                   )}
                 >
                   <DropdownList>
-                    {actionItems(lease).map((action) => (
+                    {actionItems.map((item) => (
                       <DropdownItem
-                        key={action.key}
-                        onClick={() => {
-                          action.onClick();
-                          setOpenDropdownId(null);
-                        }}
+                        key={item.key}
+                        onClick={item.onClick}
                       >
-                        {action.label}
+                        {item.label}
                       </DropdownItem>
                     ))}
                   </DropdownList>
@@ -423,14 +475,6 @@ const LeasesPage: React.FC = () => {
           ))}
         </Tbody>
       </Table>
-
-      {sortedLeases.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          <Text component={TextVariants.p} style={{ color: 'var(--pf-global--Color--300)' }}>
-            No leases found matching your criteria.
-          </Text>
-        </div>
-      )}
     </PageSection>
   );
 };

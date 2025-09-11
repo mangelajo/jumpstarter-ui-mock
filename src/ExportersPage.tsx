@@ -246,11 +246,6 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect }) => {
       onClick: () => console.log(`Lease action for ${row.name}`)
     },
     { 
-      key: 'shell', 
-      label: 'Shell',
-      onClick: () => console.log(`Shell action for ${row.name}`)
-    },
-    { 
       key: 'release', 
       label: 'Release',
       onClick: () => console.log(`Release action for ${row.name}`)

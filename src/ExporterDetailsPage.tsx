@@ -48,7 +48,6 @@ import {
   FileAltIcon
 } from '@patternfly/react-icons';
 import { Exporter, ExporterDetailsTab } from './types';
-import TerminalConsole from './TerminalConsole';
 
 interface ExporterDetailsPageProps {
   exporter: Exporter;
@@ -60,7 +59,7 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
   const [isActionsDropdownOpen, setIsActionsDropdownOpen] = useState<boolean>(false);
 
   const handleTabClick = (event: React.MouseEvent, eventKey: string | number): void => {
-    const tabs: ExporterDetailsTab[] = ['details', 'metrics', 'yaml', 'events', 'shell'];
+    const tabs: ExporterDetailsTab[] = ['details', 'metrics', 'yaml', 'events'];
     const tabIndex = typeof eventKey === 'number' ? eventKey : tabs.indexOf(eventKey as ExporterDetailsTab);
     if (tabIndex >= 0 && tabIndex < tabs.length) {
       setActiveTab(tabs[tabIndex]);
@@ -195,20 +194,6 @@ spec:
     </Card>
   );
 
-  const renderShellTab = (): React.ReactElement => (
-    <Card style={{ height: '600px' }}>
-      <CardTitle>Shell Access - {exporter.name}</CardTitle>
-      <CardBody style={{ height: 'calc(100% - 60px)', padding: 0 }}>
-        <TerminalConsole
-          exporterName={exporter.name}
-          onConnect={() => console.log('Terminal connected')}
-          onDisconnect={() => console.log('Terminal disconnected')}
-          onData={(data) => console.log('Terminal data:', data)}
-          onSend={(command) => console.log('Command sent:', command)}
-        />
-      </CardBody>
-    </Card>
-  );
 
   const renderTabContent = (): React.ReactElement => {
     switch (activeTab) {
@@ -220,8 +205,6 @@ spec:
         return renderYamlTab();
       case 'events':
         return renderEventsTab();
-      case 'shell':
-        return renderShellTab();
       default:
         return renderDetailsTab();
     }
@@ -279,13 +262,6 @@ spec:
                         Lease
                       </DropdownItem>
                       <DropdownItem
-                        key="shell"
-                        icon={<PlayIcon />}
-                        onClick={() => handleActionSelect('shell')}
-                      >
-                        Shell
-                      </DropdownItem>
-                      <DropdownItem
                         key="release"
                         icon={<StopIcon />}
                         onClick={() => handleActionSelect('release')}
@@ -335,7 +311,6 @@ spec:
           <Tab eventKey="metrics" title={<TabTitleText>Metrics</TabTitleText>} />
           <Tab eventKey="yaml" title={<TabTitleText>YAML</TabTitleText>} />
           <Tab eventKey="events" title={<TabTitleText>Events</TabTitleText>} />
-          <Tab eventKey="shell" title={<TabTitleText>Jumpstarter Shell</TabTitleText>} />
         </Tabs>
         
         <Divider style={{ margin: '1rem 0' }} />

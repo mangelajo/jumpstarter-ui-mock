@@ -42,10 +42,11 @@ import ExportersPage from './ExportersPage';
 import LeasesPage from './LeasesPage';
 import ClientsPage from './ClientsPage';
 import ExporterDetailsPage from './ExporterDetailsPage';
-import { Exporter } from './types';
+import LeaseDetailsPage from './LeaseDetailsPage';
+import { Exporter, Lease } from './types';
 import './App.css';
 
-type ActiveItem = 'exporters' | 'leases' | 'clients' | 'exporter-details';
+type ActiveItem = 'exporters' | 'leases' | 'clients' | 'exporter-details' | 'lease-details';
 
 const App: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(true);
@@ -53,6 +54,7 @@ const App: React.FC = () => {
   const [isHelpDropdownOpen, setIsHelpDropdownOpen] = useState<boolean>(false);
   const [activeItem, setActiveItem] = useState<ActiveItem>('exporters');
   const [selectedExporter, setSelectedExporter] = useState<Exporter | null>(null);
+  const [selectedLease, setSelectedLease] = useState<Lease | null>(null);
 
   useEffect(() => {
     console.log('activeItem changed to:', activeItem);
@@ -104,6 +106,16 @@ const App: React.FC = () => {
   const handleBackToExporters = (): void => {
     setActiveItem('exporters');
     setSelectedExporter(null);
+  };
+
+  const handleLeaseSelect = (lease: Lease): void => {
+    setSelectedLease(lease);
+    setActiveItem('lease-details');
+  };
+
+  const handleBackToLeases = (): void => {
+    setActiveItem('leases');
+    setSelectedLease(null);
   };
 
   const PageNav = (
@@ -241,7 +253,7 @@ const App: React.FC = () => {
       case 'exporters':
         return <ExportersPage onExporterSelect={handleExporterSelect} />;
       case 'leases':
-        return <LeasesPage />;
+        return <LeasesPage onLeaseSelect={handleLeaseSelect} />;
       case 'clients':
         return <ClientsPage />;
       case 'exporter-details':
@@ -256,6 +268,22 @@ const App: React.FC = () => {
               <Text component={TextVariants.h1}>Exporter Not Found</Text>
               <Text component={TextVariants.p}>
                 The selected exporter could not be found.
+              </Text>
+            </TextContent>
+          </PageSection>
+        );
+      case 'lease-details':
+        return selectedLease ? (
+          <LeaseDetailsPage 
+            lease={selectedLease} 
+            onBack={handleBackToLeases} 
+          />
+        ) : (
+          <PageSection variant={PageSectionVariants.light}>
+            <TextContent>
+              <Text component={TextVariants.h1}>Lease Not Found</Text>
+              <Text component={TextVariants.p}>
+                The selected lease could not be found.
               </Text>
             </TextContent>
           </PageSection>

@@ -5,6 +5,7 @@ import '@xterm/xterm/css/xterm.css';
 
 interface TerminalConsoleProps {
   exporterName: string;
+  leaseId?: string;
   onConnect?: () => void;
   onDisconnect?: () => void;
   onData?: (data: string) => void;
@@ -13,6 +14,7 @@ interface TerminalConsoleProps {
 
 const TerminalConsole: React.FC<TerminalConsoleProps> = ({
   exporterName,
+  leaseId,
   onConnect,
   onDisconnect,
   onData,
@@ -141,9 +143,9 @@ const TerminalConsole: React.FC<TerminalConsoleProps> = ({
       }
       
       // Display shell content as specified
-      terminal.write('\r\n\x1b[33m$ jmp shell -l device=' + exporterName + '\x1b[0m\r\n');
-      terminal.write('[09/10/2025 17:17:21] INFO     INFO:jumpstarter.client.lease:Created lease request for selector device=' + exporterName + ' for duration 0:30:00                                                                lease.py:60\r\n');
-      terminal.write('\r\n\x1b[33m$ j\x1b[0m\r\n');
+      const shellCommand = leaseId ? `jmp shell --lease ${leaseId}` : `jmp shell -l device=${exporterName}`;
+      terminal.write('\r\n\x1b[33m$ ' + shellCommand + '\x1b[0m\r\n');
+      terminal.write('\r\n\x1b[33m~ ⚡remote ➤ j\x1b[0m\r\n');
       terminal.write('Usage: j [OPTIONS] COMMAND [ARGS]...\r\n');
       terminal.write('\r\n  Generic composite device\r\n');
       terminal.write('\r\nOptions:\r\n');
@@ -156,7 +158,7 @@ const TerminalConsole: React.FC<TerminalConsoleProps> = ({
       terminal.write('  serial          Serial port client\r\n');
       terminal.write('  ssh             Generic Network Connection\r\n');
       terminal.write('  storage\r\n');
-      terminal.write('\r\n$ ');
+      terminal.write('\r\n\x1b[33m~ ⚡remote ➤\x1b[0m ');
     }, 1000);
 
     // Handle window resize
@@ -197,9 +199,10 @@ const TerminalConsole: React.FC<TerminalConsoleProps> = ({
         if (onConnect) {
           onConnect();
         }
-        terminalInstanceRef.current?.write('\r\n\x1b[33m$ jmp shell -l device=' + exporterName + '\x1b[0m\r\n');
+        const shellCommand = leaseId ? `jmp shell --lease ${leaseId}` : `jmp shell -l device=${exporterName}`;
+        terminalInstanceRef.current?.write('\r\n\x1b[33m$ ' + shellCommand + '\x1b[0m\r\n');
         terminalInstanceRef.current?.write('[09/10/2025 17:17:21] INFO     INFO:jumpstarter.client.lease:Created lease request for selector device=' + exporterName + ' for duration 0:30:00                                                                lease.py:60\r\n');
-        terminalInstanceRef.current?.write('\r\n\x1b[33m$ j\x1b[0m\r\n');
+        terminalInstanceRef.current?.write('\r\n\x1b[33m~ ⚡remote ➤ j\x1b[0m\r\n');
         terminalInstanceRef.current?.write('Usage: j [OPTIONS] COMMAND [ARGS]...\r\n');
         terminalInstanceRef.current?.write('\r\n  Generic composite device\r\n');
         terminalInstanceRef.current?.write('\r\nOptions:\r\n');
@@ -212,7 +215,7 @@ const TerminalConsole: React.FC<TerminalConsoleProps> = ({
         terminalInstanceRef.current?.write('  serial          Serial port client\r\n');
         terminalInstanceRef.current?.write('  ssh             Generic Network Connection\r\n');
         terminalInstanceRef.current?.write('  storage\r\n');
-        terminalInstanceRef.current?.write('\r\n$ ');
+        terminalInstanceRef.current?.write('\r\n\x1b[33m~ ⚡remote ➤\x1b[0m ');
       }, 500);
     }
   };
