@@ -21,7 +21,8 @@ import {
   MicrochipIcon,
   VirtualMachineIcon,
   BoltIcon,
-  UsbIcon
+  UsbIcon,
+  VideoIcon
 } from '@patternfly/react-icons';
 import { 
   parseDeviceTree, 
@@ -71,6 +72,8 @@ export const PatternFlyTreeView: React.FC<PatternFlyTreeViewProps> = ({
       return <VirtualMachineIcon />; // VM/Server
     } else if (type.includes('digitaloutput') || type.includes('digitalinput')) {
       return <BoltIcon />; // Digital I/O
+    } else if (type.includes('ustreamerclient')) {
+      return <VideoIcon />; // Video/Streaming
     } else {
       return <CpuIcon />; // Default fallback
     }
