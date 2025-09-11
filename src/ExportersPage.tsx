@@ -357,7 +357,7 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect, onLease
                 )}
               </Td>
               <Td dataLabel="Labels">
-                {renderLabels(exporter.status.devices?.[0]?.labels || {})}
+                {renderLabels(exporter.metadata.labels || {})}
               </Td>
               <Td isActionCell>
                 <Dropdown

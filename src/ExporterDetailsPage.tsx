@@ -146,9 +146,9 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
         <Card>
           <CardTitle>Labels</CardTitle>
           <CardBody>
-            {Object.keys(exporter.status.devices?.[0]?.labels || {}).length > 0 ? (
+            {Object.keys(exporter.metadata.labels || {}).length > 0 ? (
               <LabelGroup>
-                {Object.entries(exporter.status.devices?.[0]?.labels || {}).map(([key, value]) => (
+                {Object.entries(exporter.metadata.labels || {}).map(([key, value]) => (
                   <Label key={`${key}-${value}`} color="blue">
                     {key}={value}
                   </Label>
@@ -192,7 +192,7 @@ metadata:
   name: ${exporter.metadata.name}
   namespace: ${exporter.metadata.namespace}
   labels:
-${Object.entries(exporter.status.devices?.[0]?.labels || {}).map(([key, value]) => `    ${key}: ${value}`).join('\n')}
+${Object.entries(exporter.metadata.labels || {}).map(([key, value]) => `    ${key}: ${value}`).join('\n')}
 spec:
   username: ${exporter.spec.username}
 status:

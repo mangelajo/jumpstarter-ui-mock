@@ -4,6 +4,9 @@ export interface Exporter {
   metadata: {
     name: string;
     namespace: string;
+    labels: Record<string, string>;
+    annotations: Record<string, string>;
+    resourceVersion?: string;
     generation?: number;
     creationTimestamp?: string;
     uid?: string;
@@ -42,9 +45,20 @@ export interface Lease {
   metadata: {
     name: string;
     namespace: string;
+    labels?: Record<string, string>;
+    annotations?: Record<string, string>;
     generation?: number;
     creationTimestamp?: string;
     uid?: string;
+    ownerReferences?: Array<{
+      apiVersion: string;
+      blockOwnerDeletion: boolean;
+      controller: boolean;
+      kind: string;
+      name: string;
+      uid: string;
+    }>;
+    resourceVersion?: string;
   };
   spec: {
     clientRef: {
