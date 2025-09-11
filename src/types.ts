@@ -127,7 +127,7 @@ export type StatusBadgeVariant = 'success' | 'info' | 'warning' | 'danger' | 'de
 export type ActiveItem = 'exporters' | 'leases' | 'clients' | 'shell';
 
 // Exporter details page types
-export type ExporterDetailsTab = 'details' | 'metrics' | 'yaml' | 'events';
+export type ExporterDetailsTab = 'details' | 'documentation' | 'metrics' | 'yaml' | 'events';
 
 // Lease details page types
 export type LeaseDetailsTab = 'details' | 'yaml' | 'events' | 'shell';

@@ -60,7 +60,7 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
   const [isActionsDropdownOpen, setIsActionsDropdownOpen] = useState<boolean>(false);
 
   const handleTabClick = (event: React.MouseEvent, eventKey: string | number): void => {
-    const tabs: ExporterDetailsTab[] = ['details', 'metrics', 'yaml', 'events'];
+    const tabs: ExporterDetailsTab[] = ['details', 'documentation', 'metrics', 'yaml', 'events'];
     const tabIndex = typeof eventKey === 'number' ? eventKey : tabs.indexOf(eventKey as ExporterDetailsTab);
     if (tabIndex >= 0 && tabIndex < tabs.length) {
       setActiveTab(tabs[tabIndex]);
@@ -172,6 +172,161 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
     </Grid>
   );
 
+  const renderDocumentationTab = (): React.ReactElement => {
+    const deviceName = exporter.metadata.name;
+    const boardType = exporter.metadata.labels?.['board-type'] || 'unknown';
+    
+    return (
+      <Card>
+        <CardTitle>Documentation</CardTitle>
+        <CardBody>
+          <TextContent>
+            <Text component={TextVariants.h3}>Install CLI</Text>
+            <Text component={TextVariants.p}>
+              Install the Jumpstarter CLI tool:
+            </Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              curl -fsSL https://raw.githubusercontent.com/jumpstarter-dev/jumpstarter/main/install.sh | bash -s -- -s release-0.7
+            </pre>
+
+            <Text component={TextVariants.h3}>Login</Text>
+            <Text component={TextVariants.p}>
+              If you haven't logged in yet, use this command:
+            </Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              jmp login login.jumpstarter-lab.apps.your.cluster.com
+            </pre>
+
+            <Text component={TextVariants.h3}>Getting a Shell</Text>
+            <Text component={TextVariants.p}>
+              To get a shell into this specific device:
+            </Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              jmp shell -l device={deviceName}
+            </pre>
+            
+            <Text component={TextVariants.p}>
+              To get a shell into a free device of this type (not necessarily this one):
+            </Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              jmp shell -l board-type={boardType}
+            </pre>
+
+            <Text component={TextVariants.h3}>Creating Leases</Text>
+            <Text component={TextVariants.p}>
+              To create a more permanent lease:
+            </Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              jmp create lease -l device={deviceName} --duration 1d
+            </pre>
+            
+            <Text component={TextVariants.p}>
+              Remember to delete your lease once you're done:
+            </Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              jmp delete leases "lease-id"
+            </pre>
+
+            <Text component={TextVariants.h3}>Inside the Shell</Text>
+            <Text component={TextVariants.p}>
+              Once inside a shell (you'll see the <code>⚡remote ➤</code> prompt), you can:
+            </Text>
+            
+            <Text component={TextVariants.h4}>Flash firmware:</Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              j storage flash https://location/my-image.img
+            </pre>
+
+            <Text component={TextVariants.h4}>Control power:</Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              j power on
+            </pre>
+
+            <Text component={TextVariants.h4}>Access serial console:</Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              j serial start-console
+            </pre>
+
+            <Text component={TextVariants.h4}>Redirect SSH to localhost:2222:</Text>
+            <pre style={{ 
+              background: '#f5f5f5', 
+              padding: '1rem', 
+              borderRadius: '4px',
+              fontFamily: 'monospace',
+              fontSize: '14px',
+              margin: '0.5rem 0'
+            }}>
+              j ssh forward-tcp 2222
+            </pre>
+          </TextContent>
+        </CardBody>
+      </Card>
+    );
+  };
+
   const renderMetricsTab = (): React.ReactElement => (
     <Card>
       <CardTitle>Metrics</CardTitle>
@@ -230,6 +385,8 @@ status:
     switch (activeTab) {
       case 'details':
         return renderDetailsTab();
+      case 'documentation':
+        return renderDocumentationTab();
       case 'metrics':
         return renderMetricsTab();
       case 'yaml':
@@ -339,6 +496,7 @@ status:
       <PageSection>
         <Tabs activeKey={activeTab} onSelect={handleTabClick}>
           <Tab eventKey="details" title={<TabTitleText>Details</TabTitleText>} />
+          <Tab eventKey="documentation" title={<TabTitleText>Documentation</TabTitleText>} />
           <Tab eventKey="metrics" title={<TabTitleText>Metrics</TabTitleText>} />
           <Tab eventKey="yaml" title={<TabTitleText>YAML</TabTitleText>} />
           <Tab eventKey="events" title={<TabTitleText>Events</TabTitleText>} />
