@@ -48,6 +48,7 @@ import {
   FileAltIcon
 } from '@patternfly/react-icons';
 import { Exporter, ExporterDetailsTab } from './types';
+import PatternFlyTreeView from './components/PatternFlyTreeView';
 
 interface ExporterDetailsPageProps {
   exporter: Exporter;
@@ -159,6 +160,14 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
             )}
           </CardBody>
         </Card>
+      </GridItem>
+      <GridItem span={12}>
+        <PatternFlyTreeView 
+          exporter={exporter}
+          onDeviceSelect={(device) => {
+            console.log('Device selected:', device);
+          }}
+        />
       </GridItem>
     </Grid>
   );

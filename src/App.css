@@ -35,3 +35,120 @@ body,
   width: 80px;
   min-width: 80px;
 }
+
+/* PatternFly Tree View Styles */
+.pf-v5-c-tree-view__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pf-v5-c-tree-view__node {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0;
+  position: relative;
+  padding-left: 0;
+}
+
+/* Handle nested indentation properly */
+.pf-v5-c-tree-view__list .pf-v5-c-tree-view__list {
+  margin-left: 1.5rem;
+  border-left: 1px solid var(--pf-v5-global--BorderColor--200);
+  padding-left: 0.5rem;
+}
+
+/* Add indentation for different levels */
+.pf-v5-c-tree-view__node[data-level="1"] {
+  padding-left: 1.5rem;
+}
+
+.pf-v5-c-tree-view__node[data-level="2"] {
+  padding-left: 3rem;
+}
+
+.pf-v5-c-tree-view__node[data-level="3"] {
+  padding-left: 4.5rem;
+}
+
+.pf-v5-c-tree-view__node:hover {
+  background-color: var(--pf-v5-global--BackgroundColor--100);
+}
+
+.pf-v5-c-tree-view__node.pf-m-selected {
+  background-color: var(--pf-v5-global--active-color--100);
+  color: var(--pf-v5-global--active-color--200);
+}
+
+.pf-v5-c-tree-view__node-toggle {
+  background: none;
+  border: none;
+  padding: 0.25rem;
+  margin-right: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.pf-v5-c-tree-view__node-toggle:hover {
+  background-color: var(--pf-v5-global--BackgroundColor--200);
+  border-radius: var(--pf-v5-global--BorderRadius--sm);
+}
+
+.pf-v5-c-tree-view__node-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pf-v5-c-tree-view__node-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--pf-v5-global--BorderRadius--sm);
+}
+
+.pf-v5-c-tree-view__node-content:hover {
+  background-color: var(--pf-v5-global--BackgroundColor--200);
+}
+
+.pf-v5-c-tree-view__node-text {
+  font-weight: 500;
+}
+
+/* PatternFly icons for expand/collapse */
+.pf-v5-c-tree-view__node-toggle-icon svg {
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--pf-v5-global--Color--200);
+}
+
+/* Ensure proper spacing for tree structure */
+.pf-v5-c-tree-view__node-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+}
+
+.pf-v5-c-tree-view__node-toggle {
+  flex-shrink: 0;
+  margin-left: 0.25rem;
+}
+
+.pf-v5-c-tree-view__node-content {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Fix any weird indentation issues */
+.pf-v5-c-tree-view__list > li {
+  margin: 0;
+  padding: 0;
+}
