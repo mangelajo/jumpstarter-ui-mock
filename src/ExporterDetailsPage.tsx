@@ -75,7 +75,26 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
     setIsActionsDropdownOpen(false);
   };
 
-  const getStatusBadgeVariant = (status: Exporter['status']): 'success' | 'info' | 'warning' | 'danger' => {
+  const getExporterStatus = (exporter: Exporter): 'Available' | 'Leased' | 'Maintenance' | 'Error' => {
+    // Check if exporter has a lease
+    if (exporter.status.leaseRef?.name) {
+      return 'Leased';
+    }
+    
+    // Check conditions for status
+    const readyCondition = exporter.status.conditions?.find(c => c.type === 'Ready');
+    if (readyCondition?.status === 'False') {
+      if (readyCondition.reason === 'MaintenanceMode') {
+        return 'Maintenance';
+      }
+      return 'Error';
+    }
+    
+    return 'Available';
+  };
+
+  const getStatusBadgeVariant = (exporter: Exporter): 'success' | 'info' | 'warning' | 'danger' => {
+    const status = getExporterStatus(exporter);
     switch (status) {
       case 'Available':
         return 'success';
@@ -86,7 +105,7 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
       case 'Error':
         return 'danger';
       default:
-        return 'info';
+        return 'success';
     }
   };
 
@@ -99,24 +118,24 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
             <DescriptionList isHorizontal>
               <DescriptionListGroup>
                 <DescriptionListTerm>Name</DescriptionListTerm>
-                <DescriptionListDescription>{exporter.name}</DescriptionListDescription>
+                <DescriptionListDescription>{exporter.metadata.name}</DescriptionListDescription>
               </DescriptionListGroup>
               <DescriptionListGroup>
                 <DescriptionListTerm>Namespace</DescriptionListTerm>
-                <DescriptionListDescription>{exporter.namespace}</DescriptionListDescription>
+                <DescriptionListDescription>{exporter.metadata.namespace}</DescriptionListDescription>
               </DescriptionListGroup>
               <DescriptionListGroup>
                 <DescriptionListTerm>Status</DescriptionListTerm>
                 <DescriptionListDescription>
-                  <Badge isRead={exporter.status === 'Available'}>
-                    {exporter.status}
+                  <Badge isRead={getExporterStatus(exporter) === 'Available'}>
+                    {getExporterStatus(exporter)}
                   </Badge>
                 </DescriptionListDescription>
               </DescriptionListGroup>
               <DescriptionListGroup>
                 <DescriptionListTerm>Lease</DescriptionListTerm>
                 <DescriptionListDescription>
-                  {exporter.lease || 'Not leased'}
+                  {exporter.status.leaseRef?.name || 'Not leased'}
                 </DescriptionListDescription>
               </DescriptionListGroup>
             </DescriptionList>
@@ -127,9 +146,9 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
         <Card>
           <CardTitle>Labels</CardTitle>
           <CardBody>
-            {Object.keys(exporter.labels).length > 0 ? (
+            {Object.keys(exporter.status.devices?.[0]?.labels || {}).length > 0 ? (
               <LabelGroup>
-                {Object.entries(exporter.labels).map(([key, value]) => (
+                {Object.entries(exporter.status.devices?.[0]?.labels || {}).map(([key, value]) => (
                   <Label key={`${key}-${value}`} color="blue">
                     {key}={value}
                   </Label>
@@ -170,13 +189,16 @@ const ExporterDetailsPage: React.FC<ExporterDetailsPageProps> = ({ exporter, onB
 {`apiVersion: v1
 kind: Exporter
 metadata:
-  name: ${exporter.name}
-  namespace: ${exporter.namespace}
+  name: ${exporter.metadata.name}
+  namespace: ${exporter.metadata.namespace}
   labels:
-${Object.entries(exporter.labels).map(([key, value]) => `    ${key}: ${value}`).join('\n')}
+${Object.entries(exporter.status.devices?.[0]?.labels || {}).map(([key, value]) => `    ${key}: ${value}`).join('\n')}
 spec:
-  status: ${exporter.status}
-  lease: ${exporter.lease || 'null'}`}
+  username: ${exporter.spec.username}
+status:
+  endpoint: ${exporter.status.endpoint || 'null'}
+  lastSeen: ${exporter.status.lastSeen || 'null'}
+  leaseRef: ${exporter.status.leaseRef?.name || 'null'}`}
         </pre>
       </CardBody>
     </Card>
@@ -219,16 +241,16 @@ spec:
               <ArrowLeftIcon /> Exporters
             </Button>
           </BreadcrumbItem>
-          <BreadcrumbItem isActive>{exporter.name}</BreadcrumbItem>
+          <BreadcrumbItem isActive>{exporter.metadata.name}</BreadcrumbItem>
         </Breadcrumb>
         
         <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }}>
           <FlexItem>
             <TextContent>
               <Text component={TextVariants.h1}>
-                {exporter.name}
-                <Badge isRead={exporter.status === 'Available'} style={{ marginLeft: '1rem' }}>
-                  {exporter.status}
+                {exporter.metadata.name}
+                <Badge isRead={getExporterStatus(exporter) === 'Available'} style={{ marginLeft: '1rem' }}>
+                  {getExporterStatus(exporter)}
                 </Badge>
               </Text>
             </TextContent>

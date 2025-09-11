@@ -45,10 +45,11 @@ import { mockExporters } from './data';
 
 interface ExportersPageProps {
   onExporterSelect: (exporter: Exporter) => void;
+  onLeaseSelect: (leaseId: string) => void;
 }
 
 
-const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect }) => {
+const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect, onLeaseSelect }) => {
   const [searchValue, setSearchValue] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState<boolean>(false);
@@ -58,7 +59,26 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect }) => {
 
   const statusOptions: string[] = ['All', 'Available', 'Leased', 'Maintenance', 'Error'];
 
-  const getStatusIcon = (status: Exporter['status']): React.ReactElement | null => {
+  const getExporterStatus = (exporter: Exporter): 'Available' | 'Leased' | 'Maintenance' | 'Error' => {
+    // Check if exporter has a lease
+    if (exporter.status.leaseRef?.name) {
+      return 'Leased';
+    }
+    
+    // Check conditions for status
+    const readyCondition = exporter.status.conditions?.find(c => c.type === 'Ready');
+    if (readyCondition?.status === 'False') {
+      if (readyCondition.reason === 'MaintenanceMode') {
+        return 'Maintenance';
+      }
+      return 'Error';
+    }
+    
+    return 'Available';
+  };
+
+  const getStatusIcon = (exporter: Exporter): React.ReactElement | null => {
+    const status = getExporterStatus(exporter);
     switch (status) {
       case 'Available':
         return <CheckCircleIcon style={{ color: 'var(--pf-global--success-color--100)' }} />;
@@ -73,7 +93,8 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect }) => {
     }
   };
 
-  const getStatusBadgeVariant = (status: Exporter['status']): 'success' | 'info' | 'warning' | 'danger' | 'default' => {
+  const getStatusBadgeVariant = (exporter: Exporter): 'success' | 'info' | 'warning' | 'danger' | 'default' => {
+    const status = getExporterStatus(exporter);
     switch (status) {
       case 'Available':
         return 'success';
@@ -90,16 +111,40 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect }) => {
 
   const filteredExporters = useMemo(() => {
     return mockExporters.filter(exporter => {
-      const matchesSearch = exporter.name.toLowerCase().includes(searchValue.toLowerCase());
-      const matchesStatus = statusFilter === 'All' || exporter.status === statusFilter;
+      const matchesSearch = 
+        exporter.metadata.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        exporter.metadata.namespace.toLowerCase().includes(searchValue.toLowerCase()) ||
+        (exporter.status.leaseRef?.name || '').toLowerCase().includes(searchValue.toLowerCase());
+      
+      const exporterStatus = getExporterStatus(exporter);
+      const matchesStatus = statusFilter === 'All' || exporterStatus === statusFilter;
+
       return matchesSearch && matchesStatus;
     });
   }, [searchValue, statusFilter]);
 
   const sortedExporters = useMemo(() => {
     return [...filteredExporters].sort((a, b) => {
-      const aValue = a[sortBy as keyof Exporter];
-      const bValue = b[sortBy as keyof Exporter];
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortBy) {
+        case 'name':
+          aValue = a.metadata.name;
+          bValue = b.metadata.name;
+          break;
+        case 'status':
+          aValue = getExporterStatus(a);
+          bValue = getExporterStatus(b);
+          break;
+        case 'lease':
+          aValue = a.status.leaseRef?.name || 'None';
+          bValue = b.status.leaseRef?.name || 'None';
+          break;
+        default:
+          aValue = a.metadata.name;
+          bValue = b.metadata.name;
+      }
       
       if (sortDirection === 'asc') {
         return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
@@ -147,22 +192,22 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect }) => {
     { 
       key: 'lease', 
       label: 'Lease',
-      onClick: () => console.log(`Lease action for ${row.name}`)
+      onClick: () => console.log(`Lease action for ${row.metadata.name}`)
     },
     { 
       key: 'release', 
       label: 'Release',
-      onClick: () => console.log(`Release action for ${row.name}`)
+      onClick: () => console.log(`Release action for ${row.metadata.name}`)
     },
     { 
       key: 'edit', 
       label: 'Edit',
-      onClick: () => console.log(`Edit action for ${row.name}`)
+      onClick: () => console.log(`Edit action for ${row.metadata.name}`)
     },
     { 
       key: 'delete', 
       label: 'Delete', 
-      onClick: () => console.log(`Delete action for ${row.name}`)
+      onClick: () => console.log(`Delete action for ${row.metadata.name}`)
     }
   ];
 
@@ -275,46 +320,55 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect }) => {
         </Thead>
         <Tbody>
           {sortedExporters.map((exporter, index) => (
-            <Tr key={exporter.name}>
+            <Tr key={exporter.metadata.name}>
               <Td dataLabel="Name">
                 <Button 
                   variant={ButtonVariant.link} 
                   onClick={() => onExporterSelect(exporter)}
                   style={{ fontWeight: 'bold', padding: 0, textAlign: 'left' }}
                 >
-                  {exporter.name}
+                  {exporter.metadata.name}
                 </Button>
               </Td>
               <Td dataLabel="Status">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  {getStatusIcon(exporter.status)}
-                  <Badge isRead={exporter.status === 'Available'}>
-                    {exporter.status}
+                  {getStatusIcon(exporter)}
+                  <Badge isRead={getExporterStatus(exporter) === 'Available'}>
+                    {getExporterStatus(exporter)}
                   </Badge>
                 </div>
               </Td>
               <Td dataLabel="Lease">
-                {exporter.lease === 'None' ? (
-                  <Text component={TextVariants.small} style={{ color: 'var(--pf-global--Color--300)' }}>
-                    {exporter.lease}
-                  </Text>
+                {exporter.status.leaseRef?.name ? (
+                  <Button 
+                    variant={ButtonVariant.link} 
+                    onClick={() => onLeaseSelect(exporter.status.leaseRef!.name)}
+                    style={{ 
+                      color: 'var(--pf-global--Color--300)', 
+                      padding: 0, 
+                      textAlign: 'left',
+                      fontSize: 'var(--pf-global--FontSize--sm)'
+                    }}
+                  >
+                    {exporter.status.leaseRef.name}
+                  </Button>
                 ) : (
-                  <Badge>{exporter.lease}</Badge>
+                  <Badge>None</Badge>
                 )}
               </Td>
               <Td dataLabel="Labels">
-                {renderLabels(exporter.labels)}
+                {renderLabels(exporter.status.devices?.[0]?.labels || {})}
               </Td>
               <Td isActionCell>
                 <Dropdown
-                  isOpen={openDropdownId === exporter.name}
-                  onOpenChange={(isOpen) => setOpenDropdownId(isOpen ? exporter.name : null)}
+                  isOpen={openDropdownId === exporter.metadata.name}
+                  onOpenChange={(isOpen) => setOpenDropdownId(isOpen ? exporter.metadata.name : null)}
                   toggle={(toggleRef) => (
                     <MenuToggle
                       ref={toggleRef}
                       variant="plain"
-                      onClick={() => setOpenDropdownId(openDropdownId === exporter.name ? null : exporter.name)}
-                      isExpanded={openDropdownId === exporter.name}
+                      onClick={() => setOpenDropdownId(openDropdownId === exporter.metadata.name ? null : exporter.metadata.name)}
+                      isExpanded={openDropdownId === exporter.metadata.name}
                     >
                       <EllipsisVIcon />
                     </MenuToggle>

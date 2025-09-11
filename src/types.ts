@@ -1,9 +1,39 @@
 export interface Exporter {
-  name: string;
-  namespace: string;
-  status: 'Available' | 'Leased' | 'Maintenance' | 'Error';
-  lease: string;
-  labels: Record<string, string>;
+  apiVersion: string;
+  kind: string;
+  metadata: {
+    name: string;
+    namespace: string;
+    generation?: number;
+    creationTimestamp?: string;
+    uid?: string;
+  };
+  spec: {
+    username: string;
+  };
+  status: {
+    conditions?: Array<{
+      type: string;
+      status: 'True' | 'False' | 'Unknown';
+      lastTransitionTime: string;
+      reason: string;
+      message: string;
+      observedGeneration?: number;
+    }>;
+    credential?: {
+      name: string;
+    };
+    devices?: Array<{
+      uuid: string;
+      parent_uuid?: string;
+      labels: Record<string, string>;
+    }>;
+    endpoint?: string;
+    lastSeen?: string;
+    leaseRef?: {
+      name: string;
+    };
+  };
 }
 
 export interface Lease {

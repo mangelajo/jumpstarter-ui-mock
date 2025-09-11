@@ -63,9 +63,10 @@ import TerminalConsole from './TerminalConsole';
 interface LeaseDetailsPageProps {
   lease: Lease;
   onBack: () => void;
+  onExporterSelect: (exporterName: string) => void;
 }
 
-const LeaseDetailsPage: React.FC<LeaseDetailsPageProps> = ({ lease, onBack }) => {
+const LeaseDetailsPage: React.FC<LeaseDetailsPageProps> = ({ lease, onBack, onExporterSelect }) => {
   const [activeTab, setActiveTab] = useState<LeaseDetailsTab>('details');
   const [isActionsDropdownOpen, setIsActionsDropdownOpen] = useState<boolean>(false);
 
@@ -178,7 +179,17 @@ const LeaseDetailsPage: React.FC<LeaseDetailsPageProps> = ({ lease, onBack }) =>
                   {lease.status.exporterRef ? (
                     <Flex alignItems={{ default: 'alignItemsCenter' }}>
                       <ServerIcon style={{ marginRight: '0.5rem' }} />
-                      {lease.status.exporterRef.name}
+                      <Button 
+                        variant={ButtonVariant.link} 
+                        onClick={() => onExporterSelect(lease.status.exporterRef!.name)}
+                        style={{ 
+                          padding: 0, 
+                          textAlign: 'left',
+                          fontWeight: 'normal'
+                        }}
+                      >
+                        {lease.status.exporterRef.name}
+                      </Button>
                     </Flex>
                   ) : (
                     'Not assigned'

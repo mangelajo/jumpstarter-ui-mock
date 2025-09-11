@@ -44,6 +44,7 @@ import ClientsPage from './ClientsPage';
 import ExporterDetailsPage from './ExporterDetailsPage';
 import LeaseDetailsPage from './LeaseDetailsPage';
 import { Exporter, Lease } from './types';
+import { mockExporters, mockLeases } from './data';
 import './App.css';
 
 type ActiveItem = 'exporters' | 'leases' | 'clients' | 'exporter-details' | 'lease-details';
@@ -116,6 +117,24 @@ const App: React.FC = () => {
   const handleBackToLeases = (): void => {
     setActiveItem('leases');
     setSelectedLease(null);
+  };
+
+  const handleLeaseSelectFromExporter = (leaseId: string): void => {
+    // Find the lease by ID
+    const lease = mockLeases.find(l => l.metadata.name === leaseId);
+    if (lease) {
+      setSelectedLease(lease);
+      setActiveItem('lease-details');
+    }
+  };
+
+  const handleExporterSelectFromLease = (exporterName: string): void => {
+    // Find the exporter by name
+    const exporter = mockExporters.find(e => e.metadata.name === exporterName);
+    if (exporter) {
+      setSelectedExporter(exporter);
+      setActiveItem('exporter-details');
+    }
   };
 
   const PageNav = (
@@ -251,7 +270,7 @@ const App: React.FC = () => {
     console.log('Current activeItem:', activeItem); // Debug log
     switch (activeItem) {
       case 'exporters':
-        return <ExportersPage onExporterSelect={handleExporterSelect} />;
+        return <ExportersPage onExporterSelect={handleExporterSelect} onLeaseSelect={handleLeaseSelectFromExporter} />;
       case 'leases':
         return <LeasesPage onLeaseSelect={handleLeaseSelect} />;
       case 'clients':
@@ -276,7 +295,8 @@ const App: React.FC = () => {
         return selectedLease ? (
           <LeaseDetailsPage 
             lease={selectedLease} 
-            onBack={handleBackToLeases} 
+            onBack={handleBackToLeases}
+            onExporterSelect={handleExporterSelectFromLease}
           />
         ) : (
           <PageSection variant={PageSectionVariants.light}>
