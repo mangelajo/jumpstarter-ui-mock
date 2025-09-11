@@ -1,4 +1,4 @@
-import { Exporter, Lease, Client } from './types';
+import { Exporter, Lease, Client, ExporterType } from './types';
 
 // Mutable data store
 let mockExportersData: Exporter[] = [
@@ -7471,6 +7471,212 @@ export const updateClient = (updatedClient: Client): void => {
 
 export const deleteClient = (clientName: string): void => {
   mockClientsData = mockClientsData.filter(c => c.metadata.name !== clientName);
+};
+
+// Mock ExporterTypes data
+let mockExporterTypesData: ExporterType[] = [
+    {
+        "apiVersion": "jumpstarter.dev/v1alpha1",
+        "kind": "ExporterType",
+        "metadata": {
+            "name": "nxp-imx8qxp-mek",
+            "namespace": "jumpstarter-lab",
+            "labels": {
+                "board": "nxp-imx8qxp-mek",
+                "vendor": "nxp",
+                "category": "embedded"
+            },
+            "annotations": {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            "creationTimestamp": "2025-09-01T00:00:00Z",
+            "generation": 1,
+            "resourceVersion": "1",
+            "uid": "exporter-type-nxp-imx8qxp-mek"
+        },
+        "spec": {
+            "description": "NXP i.MX8QXP MEK (Multimedia Evaluation Kit) - High-performance embedded development board with ARM Cortex-A53 and Cortex-M4F cores",
+            "exporterSelector": {
+                "board": "nxp-imx8qxp-mek"
+            },
+            "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+            "documentation": "https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/i-mx8qxp-multimedia-evaluation-kit:MEK-MIMX8QX"
+        },
+        "status": {}
+    },
+    {
+        "apiVersion": "jumpstarter.dev/v1alpha1",
+        "kind": "ExporterType",
+        "metadata": {
+            "name": "nxp-s32g-vnp-rdb3",
+            "namespace": "jumpstarter-lab",
+            "labels": {
+                "board": "nxp-s32g-vnp-rdb3",
+                "vendor": "nxp",
+                "category": "automotive"
+            },
+            "annotations": {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            "creationTimestamp": "2025-09-01T00:00:00Z",
+            "generation": 1,
+            "resourceVersion": "1",
+            "uid": "exporter-type-nxp-s32g-vnp-rdb3"
+        },
+        "spec": {
+            "description": "NXP S32G-VNP-RDB3 - Automotive networking processor reference design board for vehicle networking applications",
+            "exporterSelector": {
+                "board": "nxp-s32g-vnp-rdb3"
+            },
+            "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+            "documentation": "https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/s32g-processors/s32g274a-vehicle-network-processor:S32G274A"
+        },
+        "status": {}
+    },
+    {
+        "apiVersion": "jumpstarter.dev/v1alpha1",
+        "kind": "ExporterType",
+        "metadata": {
+            "name": "ti-am69",
+            "namespace": "jumpstarter-lab",
+            "labels": {
+                "board": "ti-am69",
+                "vendor": "ti",
+                "category": "embedded"
+            },
+            "annotations": {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            "creationTimestamp": "2025-09-01T00:00:00Z",
+            "generation": 1,
+            "resourceVersion": "1",
+            "uid": "exporter-type-ti-am69"
+        },
+        "spec": {
+            "description": "Texas Instruments AM69 - High-performance Arm-based processor for edge AI and industrial applications",
+            "exporterSelector": {
+                "board": "ti-am69"
+            },
+            "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+            "documentation": "https://www.ti.com/product/AM69"
+        },
+        "status": {}
+    },
+    {
+        "apiVersion": "jumpstarter.dev/v1alpha1",
+        "kind": "ExporterType",
+        "metadata": {
+            "name": "qc8775",
+            "namespace": "jumpstarter-lab",
+            "labels": {
+                "board-type": "qc8775",
+                "vendor": "qualcomm",
+                "category": "embedded"
+            },
+            "annotations": {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            "creationTimestamp": "2025-09-01T00:00:00Z",
+            "generation": 1,
+            "resourceVersion": "1",
+            "uid": "exporter-type-qc8775"
+        },
+        "spec": {
+            "description": "Qualcomm QC8775 - High-performance embedded processor for IoT and edge computing applications",
+            "exporterSelector": {
+                "board-type": "qc8775"
+            },
+            "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+            "documentation": "https://www.qualcomm.com/products/application-processors/embedded-processors"
+        },
+        "status": {}
+    },
+    {
+        "apiVersion": "jumpstarter.dev/v1alpha1",
+        "kind": "ExporterType",
+        "metadata": {
+            "name": "renesas-rcar-s4",
+            "namespace": "jumpstarter-lab",
+            "labels": {
+                "board-type": "renesas-rcar-s4",
+                "vendor": "renesas",
+                "category": "automotive"
+            },
+            "annotations": {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            "creationTimestamp": "2025-09-01T00:00:00Z",
+            "generation": 1,
+            "resourceVersion": "1",
+            "uid": "exporter-type-renesas-rcar-s4"
+        },
+        "spec": {
+            "description": "Renesas R-Car S4 - Automotive system-on-chip for next-generation vehicle computing platforms",
+            "exporterSelector": {
+                "board-type": "renesas-rcar-s4"
+            },
+            "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+            "documentation": "https://www.renesas.com/us/en/products/automotive-products/automotive-system-chips-socs/r-car-s4"
+        },
+        "status": {}
+    },
+    {
+        "apiVersion": "jumpstarter.dev/v1alpha1",
+        "kind": "ExporterType",
+        "metadata": {
+            "name": "j784s4evm",
+            "namespace": "jumpstarter-lab",
+            "labels": {
+                "board-type": "j784s4evm",
+                "vendor": "ti",
+                "category": "embedded"
+            },
+            "annotations": {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            "creationTimestamp": "2025-09-01T00:00:00Z",
+            "generation": 1,
+            "resourceVersion": "1",
+            "uid": "exporter-type-j784s4evm"
+        },
+        "spec": {
+            "description": "Texas Instruments J784S4EVM - Evaluation module for J784S4 SoC with quad Arm Cortex-A72 cores and dual Cortex-R5F cores",
+            "exporterSelector": {
+                "board-type": "j784s4evm"
+            },
+            "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+            "documentation": "https://www.ti.com/tool/J784S4EVM"
+        },
+        "status": {}
+    }
+];
+
+// ExporterTypes data access functions
+export const getExporterTypes = (): ExporterType[] => {
+    return mockExporterTypesData;
+};
+
+export const getExporterType = (name: string): ExporterType | undefined => {
+    return mockExporterTypesData.find(et => et.metadata.name === name);
+};
+
+export const getExporterTypeCount = (exporterTypeName: string): number => {
+    const exporterType = getExporterType(exporterTypeName);
+    if (!exporterType) return 0;
+    
+    const selector = exporterType.spec.exporterSelector;
+    return mockExportersData.filter(exporter => {
+        return Object.entries(selector).every(([key, value]) => 
+            exporter.metadata.labels[key] === value
+        );
+    }).length;
+};
+
+export const getExporterTypesWithCounts = (): Array<ExporterType & { count: number }> => {
+    return mockExporterTypesData.map(et => ({
+        ...et,
+        count: getExporterTypeCount(et.metadata.name)
+    }));
 };
 
 // Backward compatibility exports

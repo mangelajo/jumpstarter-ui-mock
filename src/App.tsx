@@ -42,6 +42,7 @@ import {
 import ExportersPage from './ExportersPage';
 import LeasesPage from './LeasesPage';
 import ClientsPage from './ClientsPage';
+import ExporterTypesPage from './ExporterTypesPage';
 import ExporterDetailsPage from './ExporterDetailsPage';
 import LeaseDetailsPage from './LeaseDetailsPage';
 import ClientDetailsPage from './ClientDetailsPage';
@@ -50,7 +51,7 @@ import { Exporter, Lease, Client } from './types';
 import { getExporters, getLeases, addLease } from './dataStore';
 import './App.css';
 
-type ActiveItem = 'exporters' | 'leases' | 'clients' | 'exporter-details' | 'lease-details' | 'client-details' | 'create-lease';
+type ActiveItem = 'exporters' | 'exporter-types' | 'leases' | 'clients' | 'exporter-details' | 'lease-details' | 'client-details' | 'create-lease';
 
 const App: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(true);
@@ -61,6 +62,7 @@ const App: React.FC = () => {
   const [selectedLease, setSelectedLease] = useState<Lease | null>(null);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
+  const [exportersFilter, setExportersFilter] = useState<Record<string, string> | undefined>(undefined);
 
   useEffect(() => {
     console.log('activeItem changed to:', activeItem);
@@ -102,6 +104,10 @@ const App: React.FC = () => {
   const handleNavClick = (itemId: ActiveItem): void => {
     console.log('Nav item clicked:', itemId);
     setActiveItem(itemId);
+    // Clear exporters filter when navigating away from exporters page
+    if (itemId !== 'exporters') {
+      setExportersFilter(undefined);
+    }
   };
 
   const handleExporterSelect = (exporter: Exporter): void => {
@@ -140,6 +146,13 @@ const App: React.FC = () => {
       setSelectedExporter(exporter);
       setActiveItem('exporter-details');
     }
+  };
+
+  const handleNavigateToExportersWithFilter = (filter: Record<string, string>): void => {
+    // Navigate to exporters page with the specified filter
+    setExportersFilter(filter);
+    setActiveItem('exporters');
+    console.log('Navigate to exporters with filter:', filter);
   };
 
   const handleClientSelect = (client: Client): void => {
@@ -185,7 +198,7 @@ const App: React.FC = () => {
       <NavList>
         <NavExpandable 
           title="Jumpstarter" 
-          isExpanded={activeItem === 'exporters' || activeItem === 'leases' || activeItem === 'clients'}
+          isExpanded={activeItem === 'exporters' || activeItem === 'exporter-types' || activeItem === 'leases' || activeItem === 'clients'}
         >
           <NavItem 
             itemId="exporters" 
@@ -193,6 +206,13 @@ const App: React.FC = () => {
             onClick={() => handleNavClick('exporters')}
           >
             Exporters
+          </NavItem>
+          <NavItem 
+            itemId="exporter-types" 
+            isActive={activeItem === 'exporter-types'} 
+            onClick={() => handleNavClick('exporter-types')}
+          >
+            Exporter Types
           </NavItem>
           <NavItem 
             itemId="leases" 
@@ -318,7 +338,9 @@ const App: React.FC = () => {
     console.log('Current activeItem:', activeItem); // Debug log
     switch (activeItem) {
       case 'exporters':
-        return <ExportersPage onExporterSelect={handleExporterSelect} onLeaseSelect={handleLeaseSelectFromExporter} />;
+        return <ExportersPage onExporterSelect={handleExporterSelect} onLeaseSelect={handleLeaseSelectFromExporter} initialFilter={exportersFilter} />;
+      case 'exporter-types':
+        return <ExporterTypesPage onNavigateToExporters={handleNavigateToExportersWithFilter} />;
       case 'leases':
         return <LeasesPage onLeaseSelect={handleLeaseSelect} onCreateLease={handleCreateLease} onExporterSelect={handleExporterSelectFromLease} refreshTrigger={refreshTrigger} />;
       case 'clients':

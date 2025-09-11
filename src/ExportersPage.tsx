@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   PageSection,
   PageSectionVariants,
@@ -46,18 +46,43 @@ import { getExporters } from './dataStore';
 interface ExportersPageProps {
   onExporterSelect: (exporter: Exporter) => void;
   onLeaseSelect: (leaseId: string) => void;
+  initialFilter?: Record<string, string>;
 }
 
 
-const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect, onLeaseSelect }) => {
+const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect, onLeaseSelect, initialFilter }) => {
   const [searchValue, setSearchValue] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
+  const [boardFilter, setBoardFilter] = useState<string>('All');
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState<boolean>(false);
+  const [isBoardDropdownOpen, setIsBoardDropdownOpen] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
 
   const statusOptions: string[] = ['All', 'Available', 'Leased', 'Maintenance', 'Error'];
+  
+  // Get unique board types from exporters
+  const boardOptions = useMemo(() => {
+    const boards = new Set<string>();
+    getExporters().forEach(exporter => {
+      const board = exporter.metadata.labels.board || exporter.metadata.labels['board-type'];
+      if (board) {
+        boards.add(board);
+      }
+    });
+    return ['All', ...Array.from(boards).sort()];
+  }, []);
+
+  // Set initial filter from props
+  useEffect(() => {
+    if (initialFilter) {
+      const boardValue = initialFilter.board || initialFilter['board-type'];
+      if (boardValue) {
+        setBoardFilter(boardValue);
+      }
+    }
+  }, [initialFilter]);
 
   const getExporterStatus = (exporter: Exporter): 'Available' | 'Leased' | 'Maintenance' | 'Error' => {
     // Check if exporter has a lease
@@ -119,9 +144,12 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect, onLease
       const exporterStatus = getExporterStatus(exporter);
       const matchesStatus = statusFilter === 'All' || exporterStatus === statusFilter;
 
-      return matchesSearch && matchesStatus;
+      const board = exporter.metadata.labels.board || exporter.metadata.labels['board-type'];
+      const matchesBoard = boardFilter === 'All' || board === boardFilter;
+
+      return matchesSearch && matchesStatus && matchesBoard;
     });
-  }, [searchValue, statusFilter]);
+  }, [searchValue, statusFilter, boardFilter]);
 
   const sortedExporters = useMemo(() => {
     return [...filteredExporters].sort((a, b) => {
@@ -273,6 +301,38 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect, onLease
               >
                 <DropdownList>
                   {statusOptions.map(option => (
+                    <DropdownItem key={option} value={option}>
+                      {option}
+                    </DropdownItem>
+                  ))}
+                </DropdownList>
+              </Dropdown>
+            </ToolbarFilter>
+            <ToolbarFilter
+              chips={boardFilter !== 'All' ? [boardFilter] : []}
+              deleteChip={() => setBoardFilter('All')}
+              categoryName="Board Type"
+            >
+              <Dropdown
+                isOpen={isBoardDropdownOpen}
+                onOpenChange={setIsBoardDropdownOpen}
+                onSelect={(event, value) => {
+                  setBoardFilter(value as string);
+                  setIsBoardDropdownOpen(false);
+                }}
+                toggle={(toggleRef) => (
+                  <MenuToggle
+                    ref={toggleRef}
+                    onClick={() => setIsBoardDropdownOpen(!isBoardDropdownOpen)}
+                    isExpanded={isBoardDropdownOpen}
+                    icon={<FilterIcon />}
+                  >
+                    {boardFilter}
+                  </MenuToggle>
+                )}
+              >
+                <DropdownList>
+                  {boardOptions.map(option => (
                     <DropdownItem key={option} value={option}>
                       {option}
                     </DropdownItem>

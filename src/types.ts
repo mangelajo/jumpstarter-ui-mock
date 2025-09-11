@@ -165,7 +165,7 @@ export interface TableColumn {
 export type StatusBadgeVariant = 'success' | 'info' | 'warning' | 'danger' | 'default';
 
 // Navigation types
-export type ActiveItem = 'exporters' | 'leases' | 'clients' | 'shell';
+export type ActiveItem = 'exporters' | 'exporter-types' | 'leases' | 'clients' | 'shell';
 
 // Exporter details page types
 export type ExporterDetailsTab = 'details' | 'documentation' | 'metrics' | 'yaml' | 'events';
