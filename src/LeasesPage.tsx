@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   PageSection,
   PageSectionVariants,
@@ -42,23 +42,29 @@ import {
   ClockIcon
 } from '@patternfly/react-icons';
 import { Lease, ActionItem, TableColumn, SortDirection } from './types';
-import CreateLeaseDialog from './CreateLeaseDialog';
-import { mockLeases } from './data';
+import CreateLeasePage from './CreateLeasePage';
+import { getLeases } from './dataStore';
 
 interface LeasesPageProps {
   onLeaseSelect: (lease: Lease) => void;
+  onCreateLease: () => void;
+  refreshTrigger?: number; // Add refresh trigger prop
 }
 
 
-const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
+const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect, onCreateLease, refreshTrigger }) => {
   const [searchValue, setSearchValue] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
-  const [leases, setLeases] = useState<Lease[]>(mockLeases);
+  const [leases, setLeases] = useState<Lease[]>(getLeases());
+
+  // Refresh leases when component mounts or when refreshTrigger changes
+  useEffect(() => {
+    setLeases(getLeases());
+  }, [refreshTrigger]);
 
   const getStatusIcon = (lease: Lease) => {
     if (lease.status.ended) {
@@ -231,13 +237,6 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
     console.log('Created new lease:', newLease);
   };
 
-  const handleCreateDialogOpen = () => {
-    setIsCreateDialogOpen(true);
-  };
-
-  const handleCreateDialogClose = () => {
-    setIsCreateDialogOpen(false);
-  };
 
   return (
     <PageSection variant={PageSectionVariants.light}>
@@ -295,7 +294,7 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
               <Button 
                 variant={ButtonVariant.primary} 
                 icon={<PlusIcon />}
-                onClick={handleCreateDialogOpen}
+                onClick={onCreateLease}
               >
                 Create Lease
               </Button>
@@ -396,11 +395,6 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
         </Tbody>
       </Table>
 
-      <CreateLeaseDialog
-        isOpen={isCreateDialogOpen}
-        onClose={handleCreateDialogClose}
-        onCreateLease={handleCreateLease}
-      />
     </PageSection>
   );
 };

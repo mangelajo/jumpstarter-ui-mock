@@ -43,11 +43,12 @@ import LeasesPage from './LeasesPage';
 import ClientsPage from './ClientsPage';
 import ExporterDetailsPage from './ExporterDetailsPage';
 import LeaseDetailsPage from './LeaseDetailsPage';
+import CreateLeasePage from './CreateLeasePage';
 import { Exporter, Lease } from './types';
-import { mockExporters, mockLeases } from './data';
+import { getExporters, getLeases, addLease } from './dataStore';
 import './App.css';
 
-type ActiveItem = 'exporters' | 'leases' | 'clients' | 'exporter-details' | 'lease-details';
+type ActiveItem = 'exporters' | 'leases' | 'clients' | 'exporter-details' | 'lease-details' | 'create-lease';
 
 const App: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(true);
@@ -56,6 +57,7 @@ const App: React.FC = () => {
   const [activeItem, setActiveItem] = useState<ActiveItem>('exporters');
   const [selectedExporter, setSelectedExporter] = useState<Exporter | null>(null);
   const [selectedLease, setSelectedLease] = useState<Lease | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
 
   useEffect(() => {
     console.log('activeItem changed to:', activeItem);
@@ -114,14 +116,14 @@ const App: React.FC = () => {
     setActiveItem('lease-details');
   };
 
-  const handleBackToLeases = (): void => {
+  const handleBackToLeasesFromDetails = (): void => {
     setActiveItem('leases');
     setSelectedLease(null);
   };
 
   const handleLeaseSelectFromExporter = (leaseId: string): void => {
     // Find the lease by ID
-    const lease = mockLeases.find(l => l.metadata.name === leaseId);
+    const lease = getLeases().find(l => l.metadata.name === leaseId);
     if (lease) {
       setSelectedLease(lease);
       setActiveItem('lease-details');
@@ -130,11 +132,39 @@ const App: React.FC = () => {
 
   const handleExporterSelectFromLease = (exporterName: string): void => {
     // Find the exporter by name
-    const exporter = mockExporters.find(e => e.metadata.name === exporterName);
+    const exporter = getExporters().find(e => e.metadata.name === exporterName);
     if (exporter) {
       setSelectedExporter(exporter);
       setActiveItem('exporter-details');
     }
+  };
+
+  const handleCreateLease = (): void => {
+    setActiveItem('create-lease');
+  };
+
+  const handleBackToLeases = (): void => {
+    setActiveItem('leases');
+  };
+
+  const handleCreateLeaseSubmit = (leaseData: Omit<Lease, 'metadata'>): void => {
+    // Generate a new lease with metadata
+    const newLease: Lease = {
+      ...leaseData,
+      metadata: {
+        name: `lease-${Date.now()}`,
+        namespace: 'jumpstarter-lab',
+        creationTimestamp: new Date().toISOString(),
+        generation: 1,
+        uid: `lease-${Date.now()}`
+      }
+    };
+
+    // Add to data store
+    addLease(newLease);
+    console.log('Created new lease:', newLease);
+    setRefreshTrigger(prev => prev + 1); // Trigger refresh
+    setActiveItem('leases');
   };
 
   const PageNav = (
@@ -272,9 +302,16 @@ const App: React.FC = () => {
       case 'exporters':
         return <ExportersPage onExporterSelect={handleExporterSelect} onLeaseSelect={handleLeaseSelectFromExporter} />;
       case 'leases':
-        return <LeasesPage onLeaseSelect={handleLeaseSelect} />;
+        return <LeasesPage onLeaseSelect={handleLeaseSelect} onCreateLease={handleCreateLease} refreshTrigger={refreshTrigger} />;
       case 'clients':
         return <ClientsPage />;
+      case 'create-lease':
+        return (
+          <CreateLeasePage 
+            onBack={handleBackToLeases}
+            onCreateLease={handleCreateLeaseSubmit}
+          />
+        );
       case 'exporter-details':
         return selectedExporter ? (
           <ExporterDetailsPage 
@@ -295,7 +332,7 @@ const App: React.FC = () => {
         return selectedLease ? (
           <LeaseDetailsPage 
             lease={selectedLease} 
-            onBack={handleBackToLeases}
+            onBack={handleBackToLeasesFromDetails}
             onExporterSelect={handleExporterSelectFromLease}
           />
         ) : (

@@ -41,7 +41,7 @@ import {
   TimesCircleIcon
 } from '@patternfly/react-icons';
 import { Exporter, ActionItem, TableColumn, SortDirection } from './types';
-import { mockExporters } from './data';
+import { getExporters } from './dataStore';
 
 interface ExportersPageProps {
   onExporterSelect: (exporter: Exporter) => void;
@@ -110,7 +110,7 @@ const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect, onLease
   };
 
   const filteredExporters = useMemo(() => {
-    return mockExporters.filter(exporter => {
+    return getExporters().filter(exporter => {
       const matchesSearch = 
         exporter.metadata.name.toLowerCase().includes(searchValue.toLowerCase()) ||
         exporter.metadata.namespace.toLowerCase().includes(searchValue.toLowerCase()) ||
