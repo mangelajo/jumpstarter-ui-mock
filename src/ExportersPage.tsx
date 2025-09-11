@@ -41,108 +41,12 @@ import {
   TimesCircleIcon
 } from '@patternfly/react-icons';
 import { Exporter, ActionItem, TableColumn, SortDirection } from './types';
+import { mockExporters } from './data';
 
 interface ExportersPageProps {
   onExporterSelect: (exporter: Exporter) => void;
 }
 
-// Mock data based on the provided JSON
-const mockExporters: Exporter[] = [
-  {
-    name: "nxp-imx8qxp-mek-eballetbo-01",
-    namespace: "jumpstarter-lab",
-    status: "Available",
-    lease: "None",
-    labels: {
-      board: "nxp-imx8qxp-mek",
-      emmc: "false",
-      location: "eballetbo-desk",
-      cpu: "4",
-      sd: "true",
-      device: "nxp-imx8qxp-mek-eballetbo-01",
-      ram: "3"
-    }
-  },
-  {
-    name: "nxp-s32g-vnp-rdb3-eballetbo-01",
-    namespace: "jumpstarter-lab",
-    status: "Available",
-    lease: "None",
-    labels: {
-      board: "nxp-s32g-vnp-rdb3",
-      emmc: "false",
-      location: "eballetbo-desk",
-      device: "nxp-s32g-vnp-rdb3-eballetbo-01",
-      sd: "true",
-      cpu: "8",
-      ram: "32"
-    }
-  },
-  {
-    name: "qti-snapdragon-ride4-sa8775p-03",
-    namespace: "jumpstarter-lab",
-    status: "Leased",
-    lease: "user-123",
-    labels: {
-      emmc: "false",
-      "board-type": "qc8775",
-      location: "bos2",
-      cpu: "8",
-      device: "qti-snapdragon-ride4-sa8775p-03",
-      enabled: "true",
-      sd: "true",
-      ram: "32"
-    }
-  },
-  {
-    name: "qti-snapdragon-ride4-sa8775p-10",
-    namespace: "jumpstarter-lab",
-    status: "Available",
-    lease: "None",
-    labels: {
-      emmc: "false",
-      "board-type": "qc8775",
-      location: "bos2",
-      cpu: "8",
-      device: "qti-snapdragon-ride4-sa8775p-10",
-      enabled: "true",
-      sd: "true",
-      ram: "32"
-    }
-  },
-  {
-    name: "renesas-rcar-s4-01",
-    namespace: "jumpstarter-lab",
-    status: "Available",
-    lease: "None",
-    labels: {
-      emmc: "true",
-      "board-type": "renesas-rcar-s4",
-      location: "bos2",
-      cpu: "8",
-      device: "renesas-rcar-s4-01",
-      enabled: "true",
-      sd: "false",
-      ram: "4"
-    }
-  },
-  {
-    name: "ti-jacinto-j784s4xevm-01",
-    namespace: "jumpstarter-lab",
-    status: "Maintenance",
-    lease: "None",
-    labels: {
-      emmc: "true",
-      location: "bos2",
-      "board-type": "j784s4evm",
-      cpu: "8",
-      device: "ti-jacinto-j784s4xevm-01",
-      enabled: "true",
-      sd: "true",
-      ram: "32"
-    }
-  }
-];
 
 const ExportersPage: React.FC<ExportersPageProps> = ({ onExporterSelect }) => {
   const [searchValue, setSearchValue] = useState<string>('');

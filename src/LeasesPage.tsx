@@ -42,123 +42,13 @@ import {
   ClockIcon
 } from '@patternfly/react-icons';
 import { Lease, ActionItem, TableColumn, SortDirection } from './types';
+import CreateLeaseDialog from './CreateLeaseDialog';
+import { mockLeases } from './data';
 
 interface LeasesPageProps {
   onLeaseSelect: (lease: Lease) => void;
 }
 
-// Mock data based on the Lease CRD structure
-const mockLeases: Lease[] = [
-  {
-    apiVersion: "jumpstarter.dev/v1alpha1",
-    kind: "Lease",
-    metadata: {
-      name: "0198bbdb-5825-785a-ae18-c55830627ce7",
-      namespace: "jumpstarter-lab",
-      creationTimestamp: "2024-01-15T10:30:00Z",
-      generation: 1,
-      uid: "0198bbdb-5825-785a-ae18-c55830627ce7"
-    },
-    spec: {
-      clientRef: { name: "user-123" },
-      duration: "PT2H30M",
-      selector: {
-        matchLabels: {
-          board: "qti-snapdragon-ride4-sa8775p",
-          location: "bos2"
-        }
-      }
-    },
-    status: {
-      ended: false,
-      beginTime: "2024-01-15T10:30:00Z",
-      exporterRef: { name: "qti-snapdragon-ride4-sa8775p-03" },
-      priority: 1,
-      spotAccess: false,
-      conditions: [
-        {
-          type: "Ready",
-          status: "True",
-          lastTransitionTime: "2024-01-15T10:30:00Z",
-          reason: "LeaseAcquired",
-          message: "Lease successfully acquired"
-        }
-      ]
-    }
-  },
-  {
-    apiVersion: "jumpstarter.dev/v1alpha1",
-    kind: "Lease",
-    metadata: {
-      name: "0198bbdb-5825-785a-ae18-c55830627ce8",
-      namespace: "jumpstarter-lab",
-      creationTimestamp: "2024-01-15T14:15:00Z",
-      generation: 1,
-      uid: "0198bbdb-5825-785a-ae18-c55830627ce8"
-    },
-    spec: {
-      clientRef: { name: "user-456" },
-      duration: "PT1H45M",
-      selector: {
-        matchLabels: {
-          board: "nxp-imx8qxp-mek",
-          location: "eballetbo-desk"
-        }
-      }
-    },
-    status: {
-      ended: false,
-      priority: 2,
-      spotAccess: true,
-      conditions: [
-        {
-          type: "Pending",
-          status: "True",
-          lastTransitionTime: "2024-01-15T14:15:00Z",
-          reason: "WaitingForExporter",
-          message: "Waiting for available exporter"
-        }
-      ]
-    }
-  },
-  {
-    apiVersion: "jumpstarter.dev/v1alpha1",
-    kind: "Lease",
-    metadata: {
-      name: "0198bbdb-5825-785a-ae18-c55830627ce9",
-      namespace: "jumpstarter-lab",
-      creationTimestamp: "2024-01-15T09:00:00Z",
-      generation: 1,
-      uid: "0198bbdb-5825-785a-ae18-c55830627ce9"
-    },
-    spec: {
-      clientRef: { name: "user-789" },
-      duration: "PT3H15M",
-      selector: {
-        matchLabels: {
-          board: "renesas-rcar-s4",
-          location: "bos2"
-        }
-      }
-    },
-    status: {
-      ended: false,
-      beginTime: "2024-01-15T09:00:00Z",
-      exporterRef: { name: "renesas-rcar-s4-01" },
-      priority: 1,
-      spotAccess: false,
-      conditions: [
-        {
-          type: "Ready",
-          status: "True",
-          lastTransitionTime: "2024-01-15T09:00:00Z",
-          reason: "LeaseAcquired",
-          message: "Lease successfully acquired"
-        }
-      ]
-    }
-  }
-];
 
 const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
   const [searchValue, setSearchValue] = useState<string>('');
@@ -167,6 +57,8 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
   const [sortBy, setSortBy] = useState<string>('name');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState<boolean>(false);
+  const [leases, setLeases] = useState<Lease[]>(mockLeases);
 
   const getStatusIcon = (lease: Lease) => {
     if (lease.status.ended) {
@@ -221,7 +113,7 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
   ];
 
   const filteredLeases = useMemo(() => {
-    return mockLeases.filter(lease => {
+    return leases.filter(lease => {
       const matchesSearch = 
         lease.metadata.name.toLowerCase().includes(searchValue.toLowerCase()) ||
         lease.spec.clientRef.name.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -231,7 +123,7 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
       
       return matchesSearch && matchesStatus;
     });
-  }, [searchValue, statusFilter]);
+  }, [leases, searchValue, statusFilter]);
 
   const sortedLeases = useMemo(() => {
     return [...filteredLeases].sort((a, b) => {
@@ -323,6 +215,30 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
     }
   ];
 
+  const handleCreateLease = (leaseData: Omit<Lease, 'metadata'>) => {
+    const newLease: Lease = {
+      ...leaseData,
+      metadata: {
+        name: `lease-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        namespace: 'jumpstarter-lab',
+        generation: 1,
+        creationTimestamp: new Date().toISOString(),
+        uid: `lease-uid-${Date.now()}`
+      }
+    };
+    
+    setLeases(prevLeases => [newLease, ...prevLeases]);
+    console.log('Created new lease:', newLease);
+  };
+
+  const handleCreateDialogOpen = () => {
+    setIsCreateDialogOpen(true);
+  };
+
+  const handleCreateDialogClose = () => {
+    setIsCreateDialogOpen(false);
+  };
+
   return (
     <PageSection variant={PageSectionVariants.light}>
       <div style={{ marginBottom: '1rem' }}>
@@ -376,7 +292,11 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
           </ToolbarGroup>
           <ToolbarGroup>
             <ToolbarItem>
-              <Button variant={ButtonVariant.primary} icon={<PlusIcon />}>
+              <Button 
+                variant={ButtonVariant.primary} 
+                icon={<PlusIcon />}
+                onClick={handleCreateDialogOpen}
+              >
                 Create Lease
               </Button>
             </ToolbarItem>
@@ -475,6 +395,12 @@ const LeasesPage: React.FC<LeasesPageProps> = ({ onLeaseSelect }) => {
           ))}
         </Tbody>
       </Table>
+
+      <CreateLeaseDialog
+        isOpen={isCreateDialogOpen}
+        onClose={handleCreateDialogClose}
+        onCreateLease={handleCreateLease}
+      />
     </PageSection>
   );
 };
