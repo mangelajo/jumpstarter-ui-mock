@@ -43,15 +43,17 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
 
   const exporterTypesWithCounts = getExporterTypesWithCounts();
 
-  // Filter exporter types based on search
+  // Filter and sort exporter types based on search
   const filteredExporterTypes = useMemo(() => {
-    return exporterTypesWithCounts.filter(et => {
-      const matchesSearch = searchValue === '' || 
-        et.metadata.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-        et.spec.description.toLowerCase().includes(searchValue.toLowerCase());
+    return exporterTypesWithCounts
+      .filter(et => {
+        const matchesSearch = searchValue === '' || 
+          et.metadata.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          et.spec.description.toLowerCase().includes(searchValue.toLowerCase());
 
-      return matchesSearch;
-    });
+        return matchesSearch;
+      })
+      .sort((a, b) => a.metadata.name.localeCompare(b.metadata.name));
   }, [exporterTypesWithCounts, searchValue]);
 
   const handleSearchChange = (event: React.FormEvent<HTMLInputElement>, value: string) => {
