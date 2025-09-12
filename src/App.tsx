@@ -42,7 +42,7 @@ import {
 import ExportersPage from './ExportersPage';
 import LeasesPage from './LeasesPage';
 import ClientsPage from './ClientsPage';
-import ExporterTypesPage from './ExporterTypesPage';
+import LeaseTemplatesPage from './LeaseTemplatesPage';
 import ExporterDetailsPage from './ExporterDetailsPage';
 import LeaseDetailsPage from './LeaseDetailsPage';
 import ClientDetailsPage from './ClientDetailsPage';
@@ -51,7 +51,7 @@ import { Exporter, Lease, Client } from './types';
 import { getExporters, getLeases, addLease } from './dataStore';
 import './App.css';
 
-type ActiveItem = 'exporters' | 'exporter-types' | 'leases' | 'clients' | 'exporter-details' | 'lease-details' | 'client-details' | 'create-lease';
+type ActiveItem = 'exporters' | 'lease-templates' | 'leases' | 'clients' | 'exporter-details' | 'lease-details' | 'client-details' | 'create-lease';
 
 const App: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(true);
@@ -198,7 +198,7 @@ const App: React.FC = () => {
       <NavList>
         <NavExpandable 
           title="Jumpstarter" 
-          isExpanded={activeItem === 'exporters' || activeItem === 'exporter-types' || activeItem === 'leases' || activeItem === 'clients'}
+          isExpanded={activeItem === 'exporters' || activeItem === 'lease-templates' || activeItem === 'leases' || activeItem === 'clients'}
         >
           <NavItem 
             itemId="exporters" 
@@ -208,11 +208,11 @@ const App: React.FC = () => {
             Exporters
           </NavItem>
           <NavItem 
-            itemId="exporter-types" 
-            isActive={activeItem === 'exporter-types'} 
-            onClick={() => handleNavClick('exporter-types')}
+            itemId="lease-templates" 
+            isActive={activeItem === 'lease-templates'} 
+            onClick={() => handleNavClick('lease-templates')}
           >
-            Exporter Types
+            Lease Templates
           </NavItem>
           <NavItem 
             itemId="leases" 
@@ -339,8 +339,8 @@ const App: React.FC = () => {
     switch (activeItem) {
       case 'exporters':
         return <ExportersPage onExporterSelect={handleExporterSelect} onLeaseSelect={handleLeaseSelectFromExporter} initialFilter={exportersFilter} />;
-      case 'exporter-types':
-        return <ExporterTypesPage onNavigateToExporters={handleNavigateToExportersWithFilter} />;
+      case 'lease-templates':
+        return <LeaseTemplatesPage onNavigateToExporters={handleNavigateToExportersWithFilter} />;
       case 'leases':
         return <LeasesPage onLeaseSelect={handleLeaseSelect} onCreateLease={handleCreateLease} onExporterSelect={handleExporterSelectFromLease} refreshTrigger={refreshTrigger} />;
       case 'clients':

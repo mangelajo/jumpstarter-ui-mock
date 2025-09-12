@@ -27,34 +27,34 @@ import {
   StackItem
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
-import { getExporterTypesWithCounts } from './dataStore';
-import { ExporterType } from './types';
+import { getLeaseTemplatesWithCounts } from './dataStore';
+import { LeaseTemplate } from './types';
 
-interface ExporterTypeWithCount extends ExporterType {
+interface LeaseTemplateWithCount extends LeaseTemplate {
   count: number;
 }
 
-interface ExporterTypesPageProps {
+interface LeaseTemplatesPageProps {
   onNavigateToExporters?: (filter: Record<string, string>) => void;
 }
 
-const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExporters }) => {
+const LeaseTemplatesPage: React.FC<LeaseTemplatesPageProps> = ({ onNavigateToExporters }) => {
   const [searchValue, setSearchValue] = useState('');
 
-  const exporterTypesWithCounts = getExporterTypesWithCounts();
+  const leaseTemplatesWithCounts = getLeaseTemplatesWithCounts();
 
-  // Filter and sort exporter types based on search
-  const filteredExporterTypes = useMemo(() => {
-    return exporterTypesWithCounts
-      .filter(et => {
+  // Filter and sort lease templates based on search
+  const filteredLeaseTemplates = useMemo(() => {
+    return leaseTemplatesWithCounts
+      .filter(lt => {
         const matchesSearch = searchValue === '' || 
-          et.metadata.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-          et.spec.description.toLowerCase().includes(searchValue.toLowerCase());
+          lt.metadata.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+          lt.spec.description.toLowerCase().includes(searchValue.toLowerCase());
 
         return matchesSearch;
       })
       .sort((a, b) => a.metadata.name.localeCompare(b.metadata.name));
-  }, [exporterTypesWithCounts, searchValue]);
+  }, [leaseTemplatesWithCounts, searchValue]);
 
   const handleSearchChange = (event: React.FormEvent<HTMLInputElement>, value: string) => {
     setSearchValue(value);
@@ -79,11 +79,11 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
     }
   };
 
-  const handleViewExporters = (exporterType: ExporterTypeWithCount) => {
+  const handleViewExporters = (leaseTemplate: LeaseTemplateWithCount) => {
     if (onNavigateToExporters) {
-      onNavigateToExporters(exporterType.spec.exporterSelector);
+      onNavigateToExporters(leaseTemplate.spec.exporterSelector);
     } else {
-      console.log('Navigate to exporters with filter:', exporterType.spec.exporterSelector);
+      console.log('Navigate to exporters with filter:', leaseTemplate.spec.exporterSelector);
     }
   };
 
@@ -92,11 +92,11 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
     <Page>
       <PageSection variant={PageSectionVariants.light}>
         <Title headingLevel="h1" size="2xl">
-          Exporter Types
+          Lease Templates
         </Title>
         <TextContent>
           <Text component={TextVariants.p}>
-            Manage and view different types of hardware exporters available in the lab.
+            Manage and view different types of hardware lease templates available in the lab.
           </Text>
         </TextContent>
       </PageSection>
@@ -106,7 +106,7 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
           <ToolbarContent>
             <ToolbarItem>
               <SearchInput
-                placeholder="Search exporter types..."
+                placeholder="Search lease templates..."
                 value={searchValue}
                 onChange={handleSearchChange}
                 onClear={() => setSearchValue('')}
@@ -116,21 +116,21 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
         </Toolbar>
 
         <Grid hasGutter>
-          {filteredExporterTypes.map((exporterType) => (
-            <GridItem key={exporterType.metadata.name} span={12} md={6} lg={4}>
+          {filteredLeaseTemplates.map((leaseTemplate) => (
+            <GridItem key={leaseTemplate.metadata.name} span={12} md={6} lg={4}>
               <Card>
                 <CardHeader>
                   <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }}>
                     <FlexItem>
                       <CardTitle>
                         <Text component={TextVariants.h3}>
-                          {exporterType.metadata.name}
+                          {leaseTemplate.metadata.name}
                         </Text>
                       </CardTitle>
                     </FlexItem>
                     <FlexItem>
-                      <Badge isRead color={getCategoryBadgeColor(exporterType.metadata.labels.category)}>
-                        {exporterType.metadata.labels.category}
+                      <Badge isRead color={getCategoryBadgeColor(leaseTemplate.metadata.labels.category)}>
+                        {leaseTemplate.metadata.labels.category}
                       </Badge>
                     </FlexItem>
                   </Flex>
@@ -140,13 +140,13 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
                     <StackItem>
                       <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
                         <img
-                          src={exporterType.spec.base64Image}
-                          alt={exporterType.metadata.name}
+                          src={leaseTemplate.spec.base64Image}
+                          alt={leaseTemplate.metadata.name}
                           style={{ width: '128px', height: 'auto', objectFit: 'contain' }}
                         />
                         <FlexItem>
-                          <Badge isRead color={getVendorBadgeColor(exporterType.metadata.labels.vendor)}>
-                            {exporterType.metadata.labels.vendor}
+                          <Badge isRead color={getVendorBadgeColor(leaseTemplate.metadata.labels.vendor)}>
+                            {leaseTemplate.metadata.labels.vendor}
                           </Badge>
                         </FlexItem>
                       </Flex>
@@ -154,7 +154,7 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
                     
                     <StackItem>
                       <Text component={TextVariants.p}>
-                        {exporterType.spec.description}
+                        {leaseTemplate.spec.description}
                       </Text>
                     </StackItem>
 
@@ -164,14 +164,14 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
                       <Flex justifyContent={{ default: 'justifyContentSpaceBetween' }} alignItems={{ default: 'alignItemsCenter' }}>
                         <FlexItem>
                           <Text component={TextVariants.small}>
-                            <strong>{exporterType.count}</strong> exporter{exporterType.count !== 1 ? 's' : ''} available
+                            <strong>{leaseTemplate.count}</strong> exporter{leaseTemplate.count !== 1 ? 's' : ''} available
                           </Text>
                         </FlexItem>
                         <FlexItem>
                           <Button
                             variant={ButtonVariant.primary}
-                            onClick={() => handleViewExporters(exporterType)}
-                            isDisabled={exporterType.count === 0}
+                            onClick={() => handleViewExporters(leaseTemplate)}
+                            isDisabled={leaseTemplate.count === 0}
                           >
                             View Exporters
                           </Button>
@@ -186,7 +186,7 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
                         icon={<ExternalLinkAltIcon />}
                         iconPosition="right"
                         component="a"
-                        href={exporterType.spec.documentation}
+                        href={leaseTemplate.spec.documentation}
                         target="_blank"
                         rel="noopener noreferrer"
                       >
@@ -200,12 +200,12 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
           ))}
         </Grid>
 
-        {filteredExporterTypes.length === 0 && (
+        {filteredLeaseTemplates.length === 0 && (
           <Card>
             <CardBody>
               <TextContent>
                 <Text component={TextVariants.p}>
-                  No exporter types found matching your criteria.
+                  No lease templates found matching your criteria.
                 </Text>
               </TextContent>
             </CardBody>
@@ -216,4 +216,4 @@ const ExporterTypesPage: React.FC<ExporterTypesPageProps> = ({ onNavigateToExpor
   );
 };
 
-export default ExporterTypesPage;
+export default LeaseTemplatesPage;

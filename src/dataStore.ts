@@ -1,4 +1,4 @@
-import { Exporter, Lease, Client, ExporterType } from './types';
+import { Exporter, Lease, Client, LeaseTemplate } from './types';
 
 // Mutable data store
 let mockExportersData: Exporter[] = [
@@ -7473,11 +7473,11 @@ export const deleteClient = (clientName: string): void => {
   mockClientsData = mockClientsData.filter(c => c.metadata.name !== clientName);
 };
 
-// Mock ExporterTypes data
-let mockExporterTypesData: ExporterType[] = [
+// Mock LeaseTemplates data
+let mockLeaseTemplatesData: LeaseTemplate[] = [
     {
         "apiVersion": "jumpstarter.dev/v1alpha1",
-        "kind": "ExporterType",
+        "kind": "LeaseTemplate",
         "metadata": {
             "name": "nxp-imx8qxp-mek",
             "namespace": "jumpstarter-lab",
@@ -7506,7 +7506,7 @@ let mockExporterTypesData: ExporterType[] = [
     },
     {
         "apiVersion": "jumpstarter.dev/v1alpha1",
-        "kind": "ExporterType",
+        "kind": "LeaseTemplate",
         "metadata": {
             "name": "nxp-s32g-vnp-rdb3",
             "namespace": "jumpstarter-lab",
@@ -7535,7 +7535,7 @@ let mockExporterTypesData: ExporterType[] = [
     },
     {
         "apiVersion": "jumpstarter.dev/v1alpha1",
-        "kind": "ExporterType",
+        "kind": "LeaseTemplate",
         "metadata": {
             "name": "ti-am69",
             "namespace": "jumpstarter-lab",
@@ -7564,7 +7564,7 @@ let mockExporterTypesData: ExporterType[] = [
     },
     {
         "apiVersion": "jumpstarter.dev/v1alpha1",
-        "kind": "ExporterType",
+        "kind": "LeaseTemplate",
         "metadata": {
             "name": "qc8775",
             "namespace": "jumpstarter-lab",
@@ -7593,7 +7593,7 @@ let mockExporterTypesData: ExporterType[] = [
     },
     {
         "apiVersion": "jumpstarter.dev/v1alpha1",
-        "kind": "ExporterType",
+        "kind": "LeaseTemplate",
         "metadata": {
             "name": "renesas-rcar-s4",
             "namespace": "jumpstarter-lab",
@@ -7622,7 +7622,7 @@ let mockExporterTypesData: ExporterType[] = [
     },
     {
         "apiVersion": "jumpstarter.dev/v1alpha1",
-        "kind": "ExporterType",
+        "kind": "LeaseTemplate",
         "metadata": {
             "name": "j784s4evm",
             "namespace": "jumpstarter-lab",
@@ -7651,20 +7651,20 @@ let mockExporterTypesData: ExporterType[] = [
     }
 ];
 
-// ExporterTypes data access functions
-export const getExporterTypes = (): ExporterType[] => {
-    return mockExporterTypesData;
+// LeaseTemplates data access functions
+export const getLeaseTemplates = (): LeaseTemplate[] => {
+    return mockLeaseTemplatesData;
 };
 
-export const getExporterType = (name: string): ExporterType | undefined => {
-    return mockExporterTypesData.find(et => et.metadata.name === name);
+export const getLeaseTemplate = (name: string): LeaseTemplate | undefined => {
+    return mockLeaseTemplatesData.find(lt => lt.metadata.name === name);
 };
 
-export const getExporterTypeCount = (exporterTypeName: string): number => {
-    const exporterType = getExporterType(exporterTypeName);
-    if (!exporterType) return 0;
+export const getLeaseTemplateCount = (leaseTemplateName: string): number => {
+    const leaseTemplate = getLeaseTemplate(leaseTemplateName);
+    if (!leaseTemplate) return 0;
     
-    const selector = exporterType.spec.exporterSelector;
+    const selector = leaseTemplate.spec.exporterSelector;
     return mockExportersData.filter(exporter => {
         return Object.entries(selector).every(([key, value]) => 
             exporter.metadata.labels[key] === value
@@ -7672,10 +7672,10 @@ export const getExporterTypeCount = (exporterTypeName: string): number => {
     }).length;
 };
 
-export const getExporterTypesWithCounts = (): Array<ExporterType & { count: number }> => {
-    return mockExporterTypesData.map(et => ({
-        ...et,
-        count: getExporterTypeCount(et.metadata.name)
+export const getLeaseTemplatesWithCounts = (): Array<LeaseTemplate & { count: number }> => {
+    return mockLeaseTemplatesData.map(lt => ({
+        ...lt,
+        count: getLeaseTemplateCount(lt.metadata.name)
     }));
 };
 

@@ -39,7 +39,7 @@ export interface Exporter {
   };
 }
 
-export interface ExporterType {
+export interface LeaseTemplate {
   apiVersion: string;
   kind: string;
   metadata: {
@@ -165,7 +165,7 @@ export interface TableColumn {
 export type StatusBadgeVariant = 'success' | 'info' | 'warning' | 'danger' | 'default';
 
 // Navigation types
-export type ActiveItem = 'exporters' | 'exporter-types' | 'leases' | 'clients' | 'shell';
+export type ActiveItem = 'exporters' | 'lease-templates' | 'leases' | 'clients' | 'shell';
 
 // Exporter details page types
 export type ExporterDetailsTab = 'details' | 'documentation' | 'metrics' | 'yaml' | 'events';
