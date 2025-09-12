@@ -1,0 +1,34 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: buildah-and-push-rootless
+spec:
+  params:
+    - name: image
+      description: The name of the image to build and push.
+    - name: dockerfile
+      description: The path to the Dockerfile.
+      default: ./Dockerfile
+  workspaces:
+    - name: source
+      description: The workspace containing the source code.
+  steps:
+    - name: build
+      image: registry.redhat.io/rhel8/buildah
+      script: |
+        buildah --storage-driver vfs bud --tls-verify=false -f $(params.dockerfile) -t $(params.image) .
+      volumeMounts:
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
+      workingDir: $(workspaces.source.path)
+    - name: push
+      image: registry.redhat.io/rhel8/buildah
+      script: |
+        buildah --storage-driver vfs push --tls-verify=false $(params.image) docker://$(params.image)
+      volumeMounts:
+        - name: varlibcontainers
+          mountPath: /var/lib/containers
+      workingDir: $(workspaces.source.path)
+  volumes:
+    - name: varlibcontainers
+      emptyDir: {}
