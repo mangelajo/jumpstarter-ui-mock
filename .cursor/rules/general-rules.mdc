@@ -9,10 +9,9 @@ Define interaction with the user in terms of runtime actions: linting, running, 
 
 ## Scope
 This rule applies to the end of interactions with the user after modifications have been made.
-ocumentation/README.md`.
 
 ## Rule
-- **Never run the service yourself, provide a copy paste action for the user to run `npm start` since the service auto-reloads content and it's only necessary to run it once.**
+- **Never run the service yourself, provide a copy paste action for the user to run `make serve` since the service auto-reloads content and it's only necessary to run it once.**
 
-- **Whenever you finish making changes perform an `npm build`to identify errors.**
+- **Whenever you finish making changes perform an `make build` to identify errors.**
 - **Whenever you finish making changes look at the user terminal to see if there are any errors from the running server.**
