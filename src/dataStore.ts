@@ -1,4 +1,4 @@
-import { Exporter, Lease, Client, LeaseTemplate } from './types';
+import { Exporter, Lease, Client, LeaseTemplate, Build } from './types';
 
 // Mutable data store
 let mockExportersData: Exporter[] = [
@@ -7679,7 +7679,382 @@ export const getLeaseTemplatesWithCounts = (): Array<LeaseTemplate & { count: nu
     }));
 };
 
+// Build mock data based on automotive-image-builder targets
+let mockBuildsData: Build[] = [
+  {
+    apiVersion: "aib.dev/v1alpha1",
+    kind: "Build",
+    metadata: {
+      name: "build-autosd9-qemu-001",
+      namespace: "jumpstarter-lab",
+      labels: {
+        "app": "automotive-image-builder",
+        "distro": "autosd9",
+        "target": "qemu",
+        "architecture": "arm64"
+      },
+      annotations: {
+        "description": "AutoSD 9 QEMU build for testing"
+      },
+      resourceVersion: "12345",
+      generation: 1,
+      creationTimestamp: "2025-01-15T10:30:00Z",
+      uid: "build-001-uid"
+    },
+    spec: {
+      description: "AutoSD 9 QEMU build for testing automotive applications",
+      baseImage: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0",
+      targetArchitecture: "arm64",
+      buildSteps: [
+        {
+          name: "prepare-environment",
+          command: "setup-build-env",
+          args: ["--distro", "autosd9", "--arch", "arm64"]
+        },
+        {
+          name: "install-packages",
+          command: "install-rpms",
+          args: ["--packages", "automotive-core", "qemu-guest-agent"]
+        },
+        {
+          name: "configure-system",
+          command: "configure-systemd",
+          args: ["--enable", "qemu-guest-agent"]
+        }
+      ],
+      environment: {
+        "BUILD_TYPE": "automotive",
+        "TARGET_PLATFORM": "qemu",
+        "DISTRO_VERSION": "autosd9"
+      },
+      outputFormat: "qcow2",
+      registry: {
+        url: "quay.io/jumpstarter-lab",
+        namespace: "builds"
+      }
+    },
+    status: {
+      phase: "succeeded",
+      startTime: "2025-01-15T10:30:15Z",
+      completionTime: "2025-01-15T11:45:30Z",
+      conditions: [
+        {
+          type: "BuildStarted",
+          status: "True",
+          lastTransitionTime: "2025-01-15T10:30:15Z",
+          reason: "BuildInitiated",
+          message: "Build process started successfully"
+        },
+        {
+          type: "BuildCompleted",
+          status: "True",
+          lastTransitionTime: "2025-01-15T11:45:30Z",
+          reason: "BuildSucceeded",
+          message: "Build completed successfully"
+        }
+      ],
+      buildLogs: "Build started...\nInstalling packages...\nConfiguring system...\nBuild completed successfully",
+      imageUrl: "quay.io/jumpstarter-lab/builds/build-autosd9-qemu-001:latest"
+    }
+  },
+  {
+    apiVersion: "aib.dev/v1alpha1",
+    kind: "Build",
+    metadata: {
+      name: "build-rhivos1-ridesx4-002",
+      namespace: "jumpstarter-lab",
+      labels: {
+        "app": "automotive-image-builder",
+        "distro": "rhivos1",
+        "target": "ridesx4",
+        "architecture": "arm64"
+      },
+      annotations: {
+        "description": "RHIVOS 1 RIDESX4 build for automotive development"
+      },
+      resourceVersion: "12346",
+      generation: 1,
+      creationTimestamp: "2025-01-15T14:20:00Z",
+      uid: "build-002-uid"
+    },
+    spec: {
+      description: "RHIVOS 1 build for QC RIDESX4 automotive development board",
+      baseImage: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0",
+      targetArchitecture: "arm64",
+      buildSteps: [
+        {
+          name: "prepare-environment",
+          command: "setup-build-env",
+          args: ["--distro", "rhivos1", "--arch", "arm64"]
+        },
+        {
+          name: "install-automotive-packages",
+          command: "install-rpms",
+          args: ["--packages", "automotive-core", "stmmac-mac-generator"]
+        },
+        {
+          name: "configure-aboot",
+          command: "configure-aboot",
+          args: ["--enable", "aboot", "--dtb", "qcom/sa8775p-ride.dtb"]
+        }
+      ],
+      environment: {
+        "BUILD_TYPE": "automotive",
+        "TARGET_PLATFORM": "ridesx4",
+        "DISTRO_VERSION": "rhivos1",
+        "ABOOT_ENABLED": "true"
+      },
+      outputFormat: "aboot",
+      registry: {
+        url: "quay.io/jumpstarter-lab",
+        namespace: "builds"
+      }
+    },
+    status: {
+      phase: "running",
+      startTime: "2025-01-15T14:20:10Z",
+      conditions: [
+        {
+          type: "BuildStarted",
+          status: "True",
+          lastTransitionTime: "2025-01-15T14:20:10Z",
+          reason: "BuildInitiated",
+          message: "Build process started successfully"
+        }
+      ],
+      buildLogs: "Build started...\nInstalling automotive packages...\nConfiguring aboot...",
+      errorMessage: undefined
+    }
+  },
+  {
+    apiVersion: "aib.dev/v1alpha1",
+    kind: "Build",
+    metadata: {
+      name: "build-f40-s32g-003",
+      namespace: "jumpstarter-lab",
+      labels: {
+        "app": "automotive-image-builder",
+        "distro": "f40",
+        "target": "s32g_vnp_rdb3",
+        "architecture": "arm64"
+      },
+      annotations: {
+        "description": "Fedora 40 S32G build for vehicle networking"
+      },
+      resourceVersion: "12347",
+      generation: 1,
+      creationTimestamp: "2025-01-15T16:00:00Z",
+      uid: "build-003-uid"
+    },
+    spec: {
+      description: "Fedora 40 build for NXP S32G3 Vehicle Networking Reference Design Board",
+      baseImage: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0",
+      targetArchitecture: "arm64",
+      buildSteps: [
+        {
+          name: "prepare-environment",
+          command: "setup-build-env",
+          args: ["--distro", "f40", "--arch", "arm64"]
+        },
+        {
+          name: "install-networking-packages",
+          command: "install-rpms",
+          args: ["--packages", "automotive-core", "networking-tools"]
+        },
+        {
+          name: "configure-grub2-sbl",
+          command: "configure-grub2-sbl",
+          args: ["--console", "ttyLF0,115200"]
+        }
+      ],
+      environment: {
+        "BUILD_TYPE": "automotive",
+        "TARGET_PLATFORM": "s32g_vnp_rdb3",
+        "DISTRO_VERSION": "f40"
+      },
+      outputFormat: "ext4"
+    },
+    status: {
+      phase: "failed",
+      startTime: "2025-01-15T16:00:05Z",
+      completionTime: "2025-01-15T16:15:20Z",
+      conditions: [
+        {
+          type: "BuildStarted",
+          status: "True",
+          lastTransitionTime: "2025-01-15T16:00:05Z",
+          reason: "BuildInitiated",
+          message: "Build process started successfully"
+        },
+        {
+          type: "BuildCompleted",
+          status: "False",
+          lastTransitionTime: "2025-01-15T16:15:20Z",
+          reason: "BuildFailed",
+          message: "Build failed due to missing dependencies"
+        }
+      ],
+      buildLogs: "Build started...\nInstalling networking packages...\nError: Package s32g-drivers not found in repository",
+      errorMessage: "Package s32g-drivers not found in repository"
+    }
+  },
+  {
+    apiVersion: "aib.dev/v1alpha1",
+    kind: "Build",
+    metadata: {
+      name: "build-f41-imx8qxp-004",
+      namespace: "jumpstarter-lab",
+      labels: {
+        "app": "automotive-image-builder",
+        "distro": "f41",
+        "target": "imx8qxp_mek",
+        "architecture": "arm64"
+      },
+      annotations: {
+        "description": "Fedora 41 i.MX 8QXP MEK build"
+      },
+      resourceVersion: "12348",
+      generation: 1,
+      creationTimestamp: "2025-01-15T18:00:00Z",
+      uid: "build-004-uid"
+    },
+    spec: {
+      description: "Fedora 41 build for Multisensory Enablement Kit i.MX 8QuadXPlus MEK CPU Board",
+      baseImage: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0",
+      targetArchitecture: "arm64",
+      buildSteps: [
+        {
+          name: "prepare-environment",
+          command: "setup-build-env",
+          args: ["--distro", "f41", "--arch", "arm64"]
+        },
+        {
+          name: "install-board-support",
+          command: "install-rpms",
+          args: ["--packages", "automotive-core", "nxp-board-support"]
+        },
+        {
+          name: "configure-grub2-sbl",
+          command: "configure-grub2-sbl",
+          args: ["--console", "ttyLP0,115200", "--earlycon"]
+        }
+      ],
+      environment: {
+        "BUILD_TYPE": "automotive",
+        "TARGET_PLATFORM": "imx8qxp_mek",
+        "DISTRO_VERSION": "f41"
+      },
+      outputFormat: "ext4"
+    },
+    status: {
+      phase: "succeeded",
+      startTime: "2025-01-15T18:00:10Z",
+      completionTime: "2025-01-15T19:30:45Z",
+      conditions: [
+        {
+          type: "BuildStarted",
+          status: "True",
+          lastTransitionTime: "2025-01-15T18:00:10Z",
+          reason: "BuildInitiated",
+          message: "Build process started successfully"
+        },
+        {
+          type: "BuildCompleted",
+          status: "True",
+          lastTransitionTime: "2025-01-15T19:30:45Z",
+          reason: "BuildSucceeded",
+          message: "Build completed successfully"
+        }
+      ],
+      buildLogs: "Build started...\nInstalling board support packages...\nConfiguring grub2-sbl...\nBuild completed successfully",
+      imageUrl: "quay.io/jumpstarter-lab/builds/build-f41-imx8qxp-004:latest"
+    }
+  },
+  {
+    apiVersion: "aib.dev/v1alpha1",
+    kind: "Build",
+    metadata: {
+      name: "build-eln-rpi4-005",
+      namespace: "jumpstarter-lab",
+      labels: {
+        "app": "automotive-image-builder",
+        "distro": "eln",
+        "target": "rpi4",
+        "architecture": "arm64"
+      },
+      annotations: {
+        "description": "Fedora ELN Raspberry Pi 4 build"
+      },
+      resourceVersion: "12349",
+      generation: 1,
+      creationTimestamp: "2025-01-15T20:00:00Z",
+      uid: "build-005-uid"
+    },
+    spec: {
+      description: "Fedora ELN build for Raspberry Pi 4",
+      baseImage: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0",
+      targetArchitecture: "arm64",
+      buildSteps: [
+        {
+          name: "prepare-environment",
+          command: "setup-build-env",
+          args: ["--distro", "eln", "--arch", "arm64"]
+        },
+        {
+          name: "install-rpi-packages",
+          command: "install-rpms",
+          args: ["--packages", "pi4-firmware-blob", "pi_resize"]
+        },
+        {
+          name: "configure-grub2",
+          command: "configure-grub2",
+          args: ["--partition-label", "dos"]
+        }
+      ],
+      environment: {
+        "BUILD_TYPE": "automotive",
+        "TARGET_PLATFORM": "rpi4",
+        "DISTRO_VERSION": "eln"
+      },
+      outputFormat: "ext4"
+    },
+    status: {
+      phase: "pending",
+      conditions: [
+        {
+          type: "BuildCreated",
+          status: "True",
+          lastTransitionTime: "2025-01-15T20:00:00Z",
+          reason: "BuildQueued",
+          message: "Build queued for processing"
+        }
+      ],
+      buildLogs: "Build queued for processing...",
+      errorMessage: undefined
+    }
+  }
+];
+
+// Build data management functions
+export const getBuilds = (): Build[] => [...mockBuildsData];
+
+export const addBuild = (build: Build): void => {
+  mockBuildsData.push(build);
+};
+
+export const updateBuild = (buildName: string, updates: Partial<Build>): void => {
+  const index = mockBuildsData.findIndex(b => b.metadata.name === buildName);
+  if (index !== -1) {
+    mockBuildsData[index] = { ...mockBuildsData[index], ...updates };
+  }
+};
+
+export const deleteBuild = (buildName: string): void => {
+  mockBuildsData = mockBuildsData.filter(b => b.metadata.name !== buildName);
+};
+
 // Backward compatibility exports
 export const mockExporters = mockExportersData;
 export const mockLeases = mockLeasesData;
 export const mockClients = mockClientsData;
+export const mockBuilds = mockBuildsData;

@@ -47,11 +47,13 @@ import ExporterDetailsPage from './ExporterDetailsPage';
 import LeaseDetailsPage from './LeaseDetailsPage';
 import ClientDetailsPage from './ClientDetailsPage';
 import CreateLeasePage from './CreateLeasePage';
-import { Exporter, Lease, Client } from './types';
-import { getExporters, getLeases, addLease } from './dataStore';
+import BuildsPage from './BuildsPage';
+import CreateBuildPage from './CreateBuildPage';
+import { Exporter, Lease, Client, Build } from './types';
+import { getExporters, getLeases, addLease, getBuilds, addBuild } from './dataStore';
 import './App.css';
 
-type ActiveItem = 'exporters' | 'lease-templates' | 'leases' | 'clients' | 'exporter-details' | 'lease-details' | 'client-details' | 'create-lease';
+type ActiveItem = 'exporters' | 'lease-templates' | 'leases' | 'clients' | 'aib-builds' | 'create-build' | 'exporter-details' | 'lease-details' | 'client-details' | 'create-lease';
 
 const App: React.FC = () => {
   const [isNavOpen, setIsNavOpen] = useState<boolean>(true);
@@ -193,6 +195,22 @@ const App: React.FC = () => {
     setActiveItem('leases');
   };
 
+  const handleCreateBuild = (): void => {
+    setActiveItem('create-build');
+  };
+
+  const handleBackToBuilds = (): void => {
+    setActiveItem('aib-builds');
+  };
+
+  const handleCreateBuildSubmit = (build: Build): void => {
+    // Add to data store
+    addBuild(build);
+    console.log('Created new build:', build);
+    setRefreshTrigger(prev => prev + 1); // Trigger refresh
+    setActiveItem('aib-builds');
+  };
+
   const PageNav = (
     <Nav id="main-nav" theme="dark">
       <NavList>
@@ -227,6 +245,18 @@ const App: React.FC = () => {
             onClick={() => handleNavClick('clients')}
           >
             Clients
+          </NavItem>
+        </NavExpandable>
+        <NavExpandable 
+          title="AIB" 
+          isExpanded={activeItem === 'aib-builds' || activeItem === 'create-build'}
+        >
+          <NavItem 
+            itemId="aib-builds" 
+            isActive={activeItem === 'aib-builds'} 
+            onClick={() => handleNavClick('aib-builds')}
+          >
+            Builds
           </NavItem>
         </NavExpandable>
       </NavList>
@@ -350,6 +380,15 @@ const App: React.FC = () => {
           <CreateLeasePage 
             onBack={handleBackToLeases}
             onCreateLease={handleCreateLeaseSubmit}
+          />
+        );
+      case 'aib-builds':
+        return <BuildsPage onCreateBuild={handleCreateBuild} refreshTrigger={refreshTrigger} />;
+      case 'create-build':
+        return (
+          <CreateBuildPage 
+            onBack={handleBackToBuilds}
+            onCreateBuild={handleCreateBuildSubmit}
           />
         );
       case 'exporter-details':
