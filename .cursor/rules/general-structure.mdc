@@ -1,0 +1,36 @@
+---
+description: Project structure guidelines.
+alwaysApply: true
+---
+# Project Rules
+
+## Purpose
+Define project structure, mock data, types, etc.
+
+## Scope
+This rule applies to changes to the project, new additions of UI elements, data types etc.
+
+## Rule
+- **Everything represented in the UI should be represented in the data types in `src/types.ts`**
+- **Mock data should be represented in `src/dataStore.ts`**
+- **The data types should follow the structure of CRDs in kubernetes, having metadata, spec, and status, follow the example of the existing data types.**
+
+## Component Organization
+- **Page components** should be in the root of `src/` (e.g., `ExportersPage.tsx`)
+- **Reusable components** should be in `src/components/`
+- **Utility functions** should be in `src/utils/`
+- **Component naming** should follow PascalCase and be descriptive
+
+## State Management
+- **Local state** should use `useState` for component-specific UI state
+- **Shared state** should be managed through props or context
+- **Data fetching** should be abstracted into custom hooks or utility functions
+- **Mock data** should be imported from `src/dataStore.ts` , never hardcoded
+
+## Example Prompts
+
+> "When adding a new UI element, add a new data type to `src/types.ts` and corresponding mock data to `src/dataStore.ts`."
+
+> "When creating a new page component, ensure the data it displays is properly typed in `src/types.ts` and has mock data in `src/dataStore.ts`."
+
+> "When adding new table columns or form fields, update the corresponding interface in `src/types.ts` to include the new properties."
