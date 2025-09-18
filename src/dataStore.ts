@@ -7744,6 +7744,18 @@ export const getLeaseTemplatesWithCounts = (): Array<LeaseTemplate & { count: nu
     }));
 };
 
+export const getLeaseTemplatesByLabels = (labels: Record<string, string>): LeaseTemplate[] => {
+    return mockLeaseTemplatesData.filter(template => {
+        return Object.entries(labels).every(([key, value]) => 
+            template.metadata.labels[key] === value
+        );
+    });
+};
+
+export const getCompatibleLeaseTemplates = (aibPlatform: string): LeaseTemplate[] => {
+    return getLeaseTemplatesByLabels({ 'aib-platform': aibPlatform });
+};
+
 // Build mock data based on automotive-image-builder targets
 let mockBuildsData: Build[] = [
   {

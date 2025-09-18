@@ -33,9 +33,9 @@ import {
   MenuToggleElement
 } from '@patternfly/react-core';
 import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
-import { CubesIcon, DownloadIcon, EyeIcon, RedoIcon, PlusIcon, EllipsisVIcon, TrashIcon, CopyIcon } from '@patternfly/react-icons';
-import { Build } from './types';
-import { getBuilds } from './dataStore';
+import { CubesIcon, DownloadIcon, EyeIcon, RedoIcon, PlusIcon, EllipsisVIcon, TrashIcon, CopyIcon, BoltIcon } from '@patternfly/react-icons';
+import { Build, LeaseTemplate } from './types';
+import { getBuilds, getLeaseTemplates, getCompatibleLeaseTemplates } from './dataStore';
 
 interface BuildsPageProps {
   onCreateBuild: () => void;
@@ -44,23 +44,42 @@ interface BuildsPageProps {
 
 const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger = 0 }) => {
   const [builds, setBuilds] = useState<Build[]>([]);
+  const [leaseTemplates, setLeaseTemplates] = useState<LeaseTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedBuild, setSelectedBuild] = useState<Build | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string | number>(0);
   const [actionMenuOpen, setActionMenuOpen] = useState<{ [key: string]: boolean }>({});
+  const [isFlashDialogOpen, setIsFlashDialogOpen] = useState(false);
+  const [selectedLeaseTemplate, setSelectedLeaseTemplate] = useState<LeaseTemplate | null>(null);
 
   useEffect(() => {
     fetchBuilds();
   }, [refreshTrigger]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('[data-dropdown]')) {
+        setActionMenuOpen({});
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const fetchBuilds = () => {
     try {
       setLoading(true);
       setError(null);
       const buildsData = getBuilds();
+      const leaseTemplatesData = getLeaseTemplates();
       setBuilds(buildsData);
+      setLeaseTemplates(leaseTemplatesData);
     } catch (err) {
       setError(`Error fetching builds: ${err}`);
     } finally {
@@ -157,30 +176,77 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
 
   const copyBuildName = (build: Build) => {
     navigator.clipboard.writeText(build.metadata.name);
-    // You could add a toast notification here
     console.log(`Copied build name: ${build.metadata.name}`);
   };
 
   const deleteBuild = (build: Build) => {
     if (window.confirm(`Are you sure you want to delete build "${build.metadata.name}"?`)) {
-      // In a real application, this would call an API to delete the build
       console.log(`Deleting build: ${build.metadata.name}`);
-      // For demo purposes, we'll just remove it from the local state
       setBuilds(prev => prev.filter(b => b.metadata.name !== build.metadata.name));
     }
   };
 
   const restartBuild = (build: Build) => {
     if (window.confirm(`Are you sure you want to restart build "${build.metadata.name}"?`)) {
-      // In a real application, this would call an API to restart the build
       console.log(`Restarting build: ${build.metadata.name}`);
-      // For demo purposes, we'll just update the status
       setBuilds(prev => prev.map(b => 
         b.metadata.name === build.metadata.name 
           ? { ...b, status: { ...b.status, phase: 'pending' as const } }
           : b
       ));
     }
+  };
+
+  const getCompatibleLeaseTemplatesForBuild = (build: Build): LeaseTemplate[] => {
+    const buildTarget = build.metadata.labels?.target;
+    if (!buildTarget) return [];
+    
+    const compatible = getCompatibleLeaseTemplates(buildTarget);
+    return compatible;
+  };
+
+  const openFlashDialog = (build: Build, leaseTemplate: LeaseTemplate) => {
+    setSelectedBuild(build);
+    setSelectedLeaseTemplate(leaseTemplate);
+    setIsFlashDialogOpen(true);
+  };
+
+  const closeFlashDialog = () => {
+    setIsFlashDialogOpen(false);
+    setSelectedBuild(null);
+    setSelectedLeaseTemplate(null);
+  };
+
+  const generateFlashCommands = (build: Build, leaseTemplate: LeaseTemplate) => {
+    const imageUrl = build.status.imageUrl || 'https://example.com/build-artifact.img';
+    const commands = [
+      {
+        title: 'Basic Flash Command',
+        command: `j storage flash ${imageUrl}`,
+        description: 'Flash the image to the device using the basic command'
+      },
+      {
+        title: 'Flash with Verification',
+        command: `j storage flash --verify ${imageUrl}`,
+        description: 'Flash with verification to ensure data integrity'
+      },
+      {
+        title: 'Flash with Progress',
+        command: `j storage flash --progress ${imageUrl}`,
+        description: 'Flash with progress indicator for long operations'
+      },
+      {
+        title: 'Flash to Specific Device',
+        command: `j storage flash --device ${leaseTemplate.metadata.name} ${imageUrl}`,
+        description: 'Flash to a specific device using the lease template name'
+      },
+      {
+        title: 'Flash with Custom Options',
+        command: `j storage flash --force --backup ${imageUrl}`,
+        description: 'Flash with custom options (force overwrite and backup existing)'
+      }
+    ];
+    return commands;
   };
 
   if (loading && builds.length === 0) {
@@ -272,65 +338,129 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
                       {formatDuration(build.status.startTime, build.status.completionTime)}
                     </Td>
                     <Td>
-                      <Dropdown
-                        isOpen={actionMenuOpen[build.metadata.name] || false}
-                        onOpenChange={(isOpen) => toggleActionMenu(build.metadata.name, isOpen)}
-                        toggle={(toggleRef) => (
-                          <MenuToggle
-                            ref={toggleRef}
-                            variant="plain"
-                            onClick={() => toggleActionMenu(build.metadata.name)}
-                            aria-label="Build actions"
-                            isExpanded={actionMenuOpen[build.metadata.name] || false}
+                      <div style={{ position: 'relative', display: 'inline-block' }} data-dropdown>
+                        <Button
+                          variant="plain"
+                          onClick={() => toggleActionMenu(build.metadata.name)}
+                          aria-label="Build actions"
+                          style={{ padding: '4px' }}
+                        >
+                          <EllipsisVIcon />
+                        </Button>
+                        {actionMenuOpen[build.metadata.name] && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              right: 0,
+                              top: '100%',
+                              zIndex: 1000,
+                              backgroundColor: 'white',
+                              border: '1px solid #ccc',
+                              borderRadius: '4px',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                              minWidth: '200px',
+                              marginTop: '4px'
+                            }}
                           >
-                            <EllipsisVIcon />
-                          </MenuToggle>
+                            <div
+                              style={{
+                                padding: '8px 0',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                paddingLeft: '12px',
+                                paddingRight: '12px'
+                              }}
+                              onClick={() => handleActionSelect(build, 'view')}
+                            >
+                              <EyeIcon style={{ marginRight: '8px' }} />
+                              View Details
+                            </div>
+                            {build.status.phase === 'succeeded' && build.status.imageUrl && (
+                              <div
+                                style={{
+                                  padding: '8px 0',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  paddingLeft: '12px',
+                                  paddingRight: '12px'
+                                }}
+                                onClick={() => handleActionSelect(build, 'download')}
+                              >
+                                <DownloadIcon style={{ marginRight: '8px' }} />
+                                Download Artifact
+                              </div>
+                            )}
+                            {build.status.phase === 'succeeded' && build.status.imageUrl && getCompatibleLeaseTemplatesForBuild(build).length > 0 && (
+                              <>
+                                {getCompatibleLeaseTemplatesForBuild(build).map((template) => (
+                                  <div
+                                    key={`flash-${template.metadata.name}`}
+                                    style={{
+                                      padding: '8px 0',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      paddingLeft: '12px',
+                                      paddingRight: '12px'
+                                    }}
+                                    onClick={() => openFlashDialog(build, template)}
+                                  >
+                                    <BoltIcon style={{ marginRight: '8px' }} />
+                                    Flash to {template.metadata.name}
+                                  </div>
+                                ))}
+                              </>
+                            )}
+                            <div
+                              style={{
+                                padding: '8px 0',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                paddingLeft: '12px',
+                                paddingRight: '12px'
+                              }}
+                              onClick={() => handleActionSelect(build, 'copy')}
+                            >
+                              <CopyIcon style={{ marginRight: '8px' }} />
+                              Copy Name
+                            </div>
+                            {build.status.phase === 'failed' && (
+                              <div
+                                style={{
+                                  padding: '8px 0',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  paddingLeft: '12px',
+                                  paddingRight: '12px'
+                                }}
+                                onClick={() => handleActionSelect(build, 'restart')}
+                              >
+                                <RedoIcon style={{ marginRight: '8px' }} />
+                                Restart Build
+                              </div>
+                            )}
+                            <div
+                              style={{
+                                padding: '8px 0',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                paddingLeft: '12px',
+                                paddingRight: '12px',
+                                color: '#c9190b'
+                              }}
+                              onClick={() => handleActionSelect(build, 'delete')}
+                            >
+                              <TrashIcon style={{ marginRight: '8px' }} />
+                              Delete Build
+                            </div>
+                          </div>
                         )}
-                        popperProps={{ position: 'right' }}
-                      >
-                        <DropdownList>
-                          <DropdownItem
-                            key="view"
-                            onClick={() => handleActionSelect(build, 'view')}
-                            icon={<EyeIcon />}
-                          >
-                            View Details
-                          </DropdownItem>
-                          {build.status.phase === 'succeeded' && build.status.imageUrl && (
-                            <DropdownItem
-                              key="download"
-                              onClick={() => handleActionSelect(build, 'download')}
-                              icon={<DownloadIcon />}
-                            >
-                              Download Artifact
-                            </DropdownItem>
-                          )}
-                          <DropdownItem
-                            key="copy"
-                            onClick={() => handleActionSelect(build, 'copy')}
-                            icon={<CopyIcon />}
-                          >
-                            Copy Name
-                          </DropdownItem>
-                          {build.status.phase === 'failed' && (
-                            <DropdownItem
-                              key="restart"
-                              onClick={() => handleActionSelect(build, 'restart')}
-                              icon={<RedoIcon />}
-                            >
-                              Restart Build
-                            </DropdownItem>
-                          )}
-                          <DropdownItem
-                            key="delete"
-                            onClick={() => handleActionSelect(build, 'delete')}
-                            icon={<TrashIcon />}
-                            isDanger
-                          >
-                            Delete Build
-                          </DropdownItem>
-                        </DropdownList>
-                      </Dropdown>
+                      </div>
                     </Td>
                   </Tr>
                 ))}
@@ -455,6 +585,90 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
             </div>
           </Tab>
         </Tabs>
+      </Modal>
+
+      {/* Flash Dialog */}
+      <Modal
+        variant={ModalVariant.medium}
+        title={`Flash Build to ${selectedLeaseTemplate?.metadata.name}`}
+        isOpen={isFlashDialogOpen}
+        onClose={closeFlashDialog}
+        actions={[
+          <Button key="close" variant="primary" onClick={closeFlashDialog}>
+            Close
+          </Button>
+        ]}
+      >
+        {selectedBuild && selectedLeaseTemplate && (
+          <div style={{ padding: '16px 0' }}>
+            <TextContent>
+              <Text component={TextVariants.h3}>
+                Flash Details
+              </Text>
+              <Text component={TextVariants.p}>
+                This will flash the build <strong>{selectedBuild.metadata.name}</strong> to the 
+                lease template <strong>{selectedLeaseTemplate.metadata.name}</strong>.
+              </Text>
+              
+              <div style={{ marginTop: '24px' }}>
+                <Text component={TextVariants.h4}>
+                  Build Information
+                </Text>
+                <ul>
+                  <li><strong>Build Name:</strong> {selectedBuild.metadata.name}</li>
+                  <li><strong>Target:</strong> {selectedBuild.metadata.labels?.target}</li>
+                  <li><strong>Architecture:</strong> {selectedBuild.spec.targetArchitecture}</li>
+                  <li><strong>Image URL:</strong> {selectedBuild.status.imageUrl || 'Not available'}</li>
+                </ul>
+              </div>
+
+              <div style={{ marginTop: '24px' }}>
+                <Text component={TextVariants.h4}>
+                  Lease Template Information
+                </Text>
+                <ul>
+                  <li><strong>Template Name:</strong> {selectedLeaseTemplate.metadata.name}</li>
+                  <li><strong>Vendor:</strong> {selectedLeaseTemplate.metadata.labels?.vendor}</li>
+                  <li><strong>Category:</strong> {selectedLeaseTemplate.metadata.labels?.category}</li>
+                  <li><strong>Platform:</strong> {selectedLeaseTemplate.metadata.labels?.['aib-platform']}</li>
+                </ul>
+              </div>
+
+              <div style={{ marginTop: '24px' }}>
+                <Text component={TextVariants.h4}>
+                  Flash Commands
+                </Text>
+                <Text component={TextVariants.p}>
+                  Use one of the following commands to flash the image:
+                </Text>
+                
+                {generateFlashCommands(selectedBuild, selectedLeaseTemplate).map((cmd, index) => (
+                  <div key={index} style={{ marginBottom: '16px' }}>
+                    <Text component={TextVariants.h5}>
+                      {cmd.title}
+                    </Text>
+                    <Text component={TextVariants.p}>
+                      {cmd.description}
+                    </Text>
+                    <CodeBlock>
+                      <CodeBlockCode>
+                        {cmd.command}
+                      </CodeBlockCode>
+                    </CodeBlock>
+                  </div>
+                ))}
+              </div>
+
+              <Alert variant="info" isInline title="Flash Instructions" style={{ marginTop: '24px' }}>
+                <Text component={TextVariants.p}>
+                  <strong>Note:</strong> Make sure the target device is connected and accessible 
+                  before running the flash commands. The actual flashing process will depend on 
+                  your specific hardware setup and the jumpstarter CLI configuration.
+                </Text>
+              </Alert>
+            </TextContent>
+          </div>
+        )}
       </Modal>
     </PageSection>
   );
