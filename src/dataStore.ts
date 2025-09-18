@@ -7513,7 +7513,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
             "labels": {
                 "board": "nxp-s32g-vnp-rdb3",
                 "vendor": "nxp",
-                "category": "automotive"
+                "category": "automotive",
+                "aib-platform": "s32g_vnp_rdb3"
             },
             "annotations": {
                 "managed-by": "jumpstarter-lab-config"
@@ -7542,7 +7543,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
             "labels": {
                 "board": "ti-am69",
                 "vendor": "ti",
-                "category": "embedded"
+                "category": "embedded",
+                "aib-platform": "tda4vm_sk"
             },
             "annotations": {
                 "managed-by": "jumpstarter-lab-config"
@@ -7571,7 +7573,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
             "labels": {
                 "board-type": "qc8775",
                 "vendor": "qualcomm",
-                "category": "embedded"
+                "category": "embedded",
+                "aib-platform": "ridesx4"
             },
             "annotations": {
                 "managed-by": "jumpstarter-lab-config"
@@ -7600,7 +7603,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
             "labels": {
                 "board-type": "renesas-rcar-s4",
                 "vendor": "renesas",
-                "category": "automotive"
+                "category": "automotive",
+                "aib-platform": "rpi4"
             },
             "annotations": {
                 "managed-by": "jumpstarter-lab-config"
@@ -7629,7 +7633,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
             "labels": {
                 "board-type": "j784s4evm",
                 "vendor": "ti",
-                "category": "embedded"
+                "category": "embedded",
+                "aib-platform": "beagleplay"
             },
             "annotations": {
                 "managed-by": "jumpstarter-lab-config"
@@ -7646,6 +7651,66 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
             },
             "base64Image": "data:image/jpg;base64,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",
             "documentation": "https://www.ti.com/tool/J784S4EVM"
+        },
+        "status": {}
+    },
+    {
+        "apiVersion": "jumpstarter.dev/v1alpha1",
+        "kind": "LeaseTemplate",
+        "metadata": {
+            "name": "qemu-generic",
+            "namespace": "jumpstarter-lab",
+            "labels": {
+                "board-type": "qemu",
+                "vendor": "generic",
+                "category": "simulation",
+                "aib-platform": "qemu"
+            },
+            "annotations": {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            "creationTimestamp": "2025-09-01T00:00:00Z",
+            "generation": 1,
+            "resourceVersion": "1",
+            "uid": "exporter-type-qemu-generic"
+        },
+        "spec": {
+            "description": "QEMU Generic - Virtual machine for testing and development of automotive images",
+            "exporterSelector": {
+                "board-type": "qemu"
+            },
+            "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+            "documentation": "https://www.qemu.org/"
+        },
+        "status": {}
+    },
+    {
+        "apiVersion": "jumpstarter.dev/v1alpha1",
+        "kind": "LeaseTemplate",
+        "metadata": {
+            "name": "rpi4-model-b",
+            "namespace": "jumpstarter-lab",
+            "labels": {
+                "board-type": "rpi4",
+                "vendor": "raspberry-pi",
+                "category": "embedded",
+                "aib-platform": "rpi4"
+            },
+            "annotations": {
+                "managed-by": "jumpstarter-lab-config"
+            },
+            "creationTimestamp": "2025-09-01T00:00:00Z",
+            "generation": 1,
+            "resourceVersion": "1",
+            "uid": "exporter-type-rpi4-model-b"
+        },
+        "spec": {
+            "description": "Raspberry Pi 4 Model B - Popular single-board computer for IoT and embedded development",
+            "exporterSelector": {
+                "board-type": "rpi4"
+            },
+            "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+            "documentation": "https://www.raspberrypi.org/products/raspberry-pi-4-model-b/"
         },
         "status": {}
     }
