@@ -6,7 +6,7 @@ import {
   Card,
   CardBody,
   Button,
-  Badge,
+  Label,
   EmptyState,
   EmptyStateActions,
   EmptyStateBody,
@@ -87,20 +87,20 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
     }
   };
 
-  const getPhaseVariant = (phase: string): 'success' | 'info' | 'warning' | 'danger' | 'default' => {
+  const getPhaseColor = (phase: string): 'green' | 'red' | 'blue' | 'grey' => {
     switch (phase.toLowerCase()) {
       case 'succeeded':
       case 'completed':
-        return 'success';
+        return 'green';  // Green
       case 'failed':
-        return 'danger';
+        return 'red';    // Red
       case 'running':
       case 'building':
-        return 'info';
+        return 'blue';   // Blue
       case 'pending':
-        return 'warning';
+        return 'blue';   // Blue
       default:
-        return 'default';
+        return 'grey';
     }
   };
 
@@ -201,8 +201,7 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
     const buildTarget = build.metadata.labels?.target;
     if (!buildTarget) return [];
     
-    const compatible = getCompatibleLeaseTemplates(buildTarget);
-    return compatible;
+    return getCompatibleLeaseTemplates(buildTarget);
   };
 
   const openFlashDialog = (build: Build, leaseTemplate: LeaseTemplate) => {
@@ -329,9 +328,9 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
                     <Td>{build.metadata.labels?.target || '-'}</Td>
                     <Td>{build.spec.targetArchitecture}</Td>
                     <Td>
-                      <Badge color={getPhaseVariant(build.status.phase)}>
+                      <Label color={getPhaseColor(build.status.phase)}>
                         {build.status.phase}
-                      </Badge>
+                      </Label>
                     </Td>
                     <Td>{new Date(build.metadata.creationTimestamp || '').toLocaleString()}</Td>
                     <Td>
@@ -494,9 +493,9 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
                     <dd>{selectedBuild.spec.description}</dd>
                     <dt><strong>Status:</strong></dt>
                     <dd>
-                      <Badge color={getPhaseVariant(selectedBuild.status.phase)}>
+                      <Label color={getPhaseColor(selectedBuild.status.phase)}>
                         {selectedBuild.status.phase}
-                      </Badge>
+                      </Label>
                     </dd>
                     <dt><strong>Distro:</strong></dt>
                     <dd>{selectedBuild.metadata.labels?.distro || '-'}</dd>

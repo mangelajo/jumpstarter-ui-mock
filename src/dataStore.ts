@@ -7484,7 +7484,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
             "labels": {
                 "board": "nxp-imx8qxp-mek",
                 "vendor": "nxp",
-                "category": "embedded"
+                "category": "embedded",
+                "aib-platform": "imx8qxp_mek"
             },
             "annotations": {
                 "managed-by": "jumpstarter-lab-config"
@@ -7888,19 +7889,20 @@ let mockBuildsData: Build[] = [
       }
     },
     status: {
-      phase: "running",
+      phase: "succeeded",
       startTime: "2025-01-15T14:20:10Z",
+      completionTime: "2025-01-15T15:45:30Z",
       conditions: [
         {
-          type: "BuildStarted",
+          type: "BuildSucceeded",
           status: "True",
-          lastTransitionTime: "2025-01-15T14:20:10Z",
-          reason: "BuildInitiated",
-          message: "Build process started successfully"
+          lastTransitionTime: "2025-01-15T15:45:30Z",
+          reason: "BuildCompleted",
+          message: "Build completed successfully"
         }
       ],
-      buildLogs: "Build started...\nInstalling automotive packages...\nConfiguring aboot...",
-      errorMessage: undefined
+      buildLogs: "Build started...\nInstalling automotive packages...\nConfiguring aboot...\nBuild completed successfully",
+      imageUrl: "quay.io/jumpstarter-lab/builds/build-rhivos1-ridesx4-002:latest"
     }
   },
   {
@@ -7952,27 +7954,20 @@ let mockBuildsData: Build[] = [
       outputFormat: "ext4"
     },
     status: {
-      phase: "failed",
+      phase: "succeeded",
       startTime: "2025-01-15T16:00:05Z",
-      completionTime: "2025-01-15T16:15:20Z",
+      completionTime: "2025-01-15T17:30:20Z",
       conditions: [
         {
-          type: "BuildStarted",
+          type: "BuildSucceeded",
           status: "True",
-          lastTransitionTime: "2025-01-15T16:00:05Z",
-          reason: "BuildInitiated",
-          message: "Build process started successfully"
-        },
-        {
-          type: "BuildCompleted",
-          status: "False",
-          lastTransitionTime: "2025-01-15T16:15:20Z",
-          reason: "BuildFailed",
-          message: "Build failed due to missing dependencies"
+          lastTransitionTime: "2025-01-15T17:30:20Z",
+          reason: "BuildCompleted",
+          message: "Build completed successfully"
         }
       ],
-      buildLogs: "Build started...\nInstalling networking packages...\nError: Package s32g-drivers not found in repository",
-      errorMessage: "Package s32g-drivers not found in repository"
+      buildLogs: "Build started...\nInstalling networking packages...\nConfiguring networking...\nBuild completed successfully",
+      imageUrl: "quay.io/jumpstarter-lab/builds/build-f40-s32g-003:latest"
     }
   },
   {
@@ -8096,18 +8091,264 @@ let mockBuildsData: Build[] = [
       outputFormat: "ext4"
     },
     status: {
+      phase: "succeeded",
+      startTime: "2025-01-15T20:00:10Z",
+      completionTime: "2025-01-15T21:15:30Z",
+      conditions: [
+        {
+          type: "BuildSucceeded",
+          status: "True",
+          lastTransitionTime: "2025-01-15T21:15:30Z",
+          reason: "BuildCompleted",
+          message: "Build completed successfully"
+        }
+      ],
+      buildLogs: "Build started...\nInstalling RPI packages...\nConfiguring grub2...\nBuild completed successfully",
+      imageUrl: "quay.io/jumpstarter-lab/builds/build-eln-rpi4-005:latest"
+    }
+  },
+  {
+    apiVersion: "aib.dev/v1alpha1",
+    kind: "Build",
+    metadata: {
+      name: "build-autosd9-beagleplay-006",
+      namespace: "jumpstarter-lab",
+      labels: {
+        "app": "automotive-image-builder",
+        "distro": "autosd9",
+        "target": "beagleplay",
+        "architecture": "arm64"
+      },
+      annotations: {
+        "description": "AutoSD 9 BeaglePlay build for embedded development"
+      },
+      resourceVersion: "12350",
+      generation: 1,
+      creationTimestamp: "2025-01-16T08:00:00Z",
+      uid: "build-006-uid"
+    },
+    spec: {
+      description: "AutoSD 9 build for BeaglePlay embedded development board",
+      baseImage: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0",
+      targetArchitecture: "arm64",
+      buildSteps: [
+        {
+          name: "prepare-environment",
+          command: "setup-build-env",
+          args: ["--distro", "autosd9", "--arch", "arm64"]
+        },
+        {
+          name: "install-embedded-packages",
+          command: "install-rpms",
+          args: ["--packages", "automotive-core", "embedded-tools"]
+        }
+      ],
+      environment: {
+        "BUILD_TYPE": "automotive",
+        "TARGET_PLATFORM": "beagleplay",
+        "DISTRO_VERSION": "autosd9"
+      },
+      outputFormat: "ext4"
+    },
+    status: {
+      phase: "running",
+      startTime: "2025-01-16T08:00:10Z",
+      conditions: [
+        {
+          type: "BuildStarted",
+          status: "True",
+          lastTransitionTime: "2025-01-16T08:00:10Z",
+          reason: "BuildInitiated",
+          message: "Build process started successfully"
+        }
+      ],
+      buildLogs: "Build started...\nInstalling embedded packages...\nConfiguring system...",
+      errorMessage: undefined
+    }
+  },
+  {
+    apiVersion: "aib.dev/v1alpha1",
+    kind: "Build",
+    metadata: {
+      name: "build-f41-tda4vm-007",
+      namespace: "jumpstarter-lab",
+      labels: {
+        "app": "automotive-image-builder",
+        "distro": "f41",
+        "target": "tda4vm_sk",
+        "architecture": "arm64"
+      },
+      annotations: {
+        "description": "Fedora 41 TDA4VM build for automotive AI"
+      },
+      resourceVersion: "12351",
+      generation: 1,
+      creationTimestamp: "2025-01-16T10:30:00Z",
+      uid: "build-007-uid"
+    },
+    spec: {
+      description: "Fedora 41 build for TI TDA4VM Starter Kit for automotive AI applications",
+      baseImage: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0",
+      targetArchitecture: "arm64",
+      buildSteps: [
+        {
+          name: "prepare-environment",
+          command: "setup-build-env",
+          args: ["--distro", "f41", "--arch", "arm64"]
+        },
+        {
+          name: "install-ai-packages",
+          command: "install-rpms",
+          args: ["--packages", "automotive-core", "ai-toolkit", "tda4vm-drivers"]
+        }
+      ],
+      environment: {
+        "BUILD_TYPE": "automotive",
+        "TARGET_PLATFORM": "tda4vm_sk",
+        "DISTRO_VERSION": "f41"
+      },
+      outputFormat: "ext4"
+    },
+    status: {
+      phase: "failed",
+      startTime: "2025-01-16T10:30:05Z",
+      completionTime: "2025-01-16T10:45:20Z",
+      conditions: [
+        {
+          type: "BuildStarted",
+          status: "True",
+          lastTransitionTime: "2025-01-16T10:30:05Z",
+          reason: "BuildInitiated",
+          message: "Build process started successfully"
+        },
+        {
+          type: "BuildCompleted",
+          status: "False",
+          lastTransitionTime: "2025-01-16T10:45:20Z",
+          reason: "BuildFailed",
+          message: "Build failed due to missing AI toolkit dependencies"
+        }
+      ],
+      buildLogs: "Build started...\nInstalling AI packages...\nError: Package ai-toolkit not found in repository\nBuild failed",
+      errorMessage: "Package ai-toolkit not found in repository"
+    }
+  },
+  {
+    apiVersion: "aib.dev/v1alpha1",
+    kind: "Build",
+    metadata: {
+      name: "build-eln-rpi4-008",
+      namespace: "jumpstarter-lab",
+      labels: {
+        "app": "automotive-image-builder",
+        "distro": "eln",
+        "target": "rpi4",
+        "architecture": "arm64"
+      },
+      annotations: {
+        "description": "Fedora ELN Raspberry Pi 4 build for IoT applications"
+      },
+      resourceVersion: "12352",
+      generation: 1,
+      creationTimestamp: "2025-01-16T12:00:00Z",
+      uid: "build-008-uid"
+    },
+    spec: {
+      description: "Fedora ELN build for Raspberry Pi 4 IoT applications",
+      baseImage: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0",
+      targetArchitecture: "arm64",
+      buildSteps: [
+        {
+          name: "prepare-environment",
+          command: "setup-build-env",
+          args: ["--distro", "eln", "--arch", "arm64"]
+        },
+        {
+          name: "install-iot-packages",
+          command: "install-rpms",
+          args: ["--packages", "automotive-core", "iot-tools", "gpio-utils"]
+        }
+      ],
+      environment: {
+        "BUILD_TYPE": "automotive",
+        "TARGET_PLATFORM": "rpi4",
+        "DISTRO_VERSION": "eln"
+      },
+      outputFormat: "ext4"
+    },
+    status: {
       phase: "pending",
       conditions: [
         {
           type: "BuildCreated",
           status: "True",
-          lastTransitionTime: "2025-01-15T20:00:00Z",
+          lastTransitionTime: "2025-01-16T12:00:00Z",
           reason: "BuildQueued",
           message: "Build queued for processing"
         }
       ],
       buildLogs: "Build queued for processing...",
       errorMessage: undefined
+    }
+  },
+  {
+    apiVersion: "aib.dev/v1alpha1",
+    kind: "Build",
+    metadata: {
+      name: "build-rhivos1-qemu-009",
+      namespace: "jumpstarter-lab",
+      labels: {
+        "app": "automotive-image-builder",
+        "distro": "rhivos1",
+        "target": "qemu",
+        "architecture": "x86_64"
+      },
+      annotations: {
+        "description": "RHIVOS 1 QEMU build for x86_64 testing"
+      },
+      resourceVersion: "12353",
+      generation: 1,
+      creationTimestamp: "2025-01-16T14:15:00Z",
+      uid: "build-009-uid"
+    },
+    spec: {
+      description: "RHIVOS 1 build for QEMU x86_64 testing environment",
+      baseImage: "quay.io/centos-sig-automotive/automotive-image-builder:1.0.0",
+      targetArchitecture: "x86_64",
+      buildSteps: [
+        {
+          name: "prepare-environment",
+          command: "setup-build-env",
+          args: ["--distro", "rhivos1", "--arch", "x86_64"]
+        },
+        {
+          name: "install-testing-packages",
+          command: "install-rpms",
+          args: ["--packages", "automotive-core", "testing-tools"]
+        }
+      ],
+      environment: {
+        "BUILD_TYPE": "automotive",
+        "TARGET_PLATFORM": "qemu",
+        "DISTRO_VERSION": "rhivos1"
+      },
+      outputFormat: "qcow2"
+    },
+    status: {
+      phase: "succeeded",
+      startTime: "2025-01-16T14:15:10Z",
+      completionTime: "2025-01-16T15:30:45Z",
+      conditions: [
+        {
+          type: "BuildSucceeded",
+          status: "True",
+          lastTransitionTime: "2025-01-16T15:30:45Z",
+          reason: "BuildCompleted",
+          message: "Build completed successfully"
+        }
+      ],
+      buildLogs: "Build started...\nInstalling testing packages...\nConfiguring system...\nBuild completed successfully",
+      imageUrl: "quay.io/jumpstarter-lab/builds/build-rhivos1-qemu-009:latest"
     }
   }
 ];
