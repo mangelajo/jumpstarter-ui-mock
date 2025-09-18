@@ -25,10 +25,15 @@ import {
   ActionGroup,
   Text,
   TextContent,
-  TextVariants
+  TextVariants,
+  Dropdown,
+  DropdownItem,
+  DropdownList,
+  MenuToggle,
+  MenuToggleElement
 } from '@patternfly/react-core';
 import { Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
-import { CubesIcon, DownloadIcon, EyeIcon, RedoIcon, PlusIcon } from '@patternfly/react-icons';
+import { CubesIcon, DownloadIcon, EyeIcon, RedoIcon, PlusIcon, EllipsisVIcon, TrashIcon, CopyIcon } from '@patternfly/react-icons';
 import { Build } from './types';
 import { getBuilds } from './dataStore';
 
@@ -44,6 +49,7 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
   const [selectedBuild, setSelectedBuild] = useState<Build | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<string | number>(0);
+  const [actionMenuOpen, setActionMenuOpen] = useState<{ [key: string]: boolean }>({});
 
   useEffect(() => {
     fetchBuilds();
@@ -113,6 +119,67 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
       window.open(build.status.imageUrl, '_blank');
     } else {
       setError('No artifact available for download');
+    }
+  };
+
+  const toggleActionMenu = (buildName: string, isOpen?: boolean) => {
+    setActionMenuOpen(prev => ({
+      ...prev,
+      [buildName]: isOpen !== undefined ? isOpen : !prev[buildName]
+    }));
+  };
+
+  const handleActionSelect = (build: Build, action: string) => {
+    toggleActionMenu(build.metadata.name, false);
+    
+    switch (action) {
+      case 'view':
+        openBuildModal(build);
+        break;
+      case 'download':
+        if (build.status.phase === 'succeeded' && build.status.imageUrl) {
+          downloadArtifact(build);
+        }
+        break;
+      case 'copy':
+        copyBuildName(build);
+        break;
+      case 'delete':
+        deleteBuild(build);
+        break;
+      case 'restart':
+        restartBuild(build);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const copyBuildName = (build: Build) => {
+    navigator.clipboard.writeText(build.metadata.name);
+    // You could add a toast notification here
+    console.log(`Copied build name: ${build.metadata.name}`);
+  };
+
+  const deleteBuild = (build: Build) => {
+    if (window.confirm(`Are you sure you want to delete build "${build.metadata.name}"?`)) {
+      // In a real application, this would call an API to delete the build
+      console.log(`Deleting build: ${build.metadata.name}`);
+      // For demo purposes, we'll just remove it from the local state
+      setBuilds(prev => prev.filter(b => b.metadata.name !== build.metadata.name));
+    }
+  };
+
+  const restartBuild = (build: Build) => {
+    if (window.confirm(`Are you sure you want to restart build "${build.metadata.name}"?`)) {
+      // In a real application, this would call an API to restart the build
+      console.log(`Restarting build: ${build.metadata.name}`);
+      // For demo purposes, we'll just update the status
+      setBuilds(prev => prev.map(b => 
+        b.metadata.name === build.metadata.name 
+          ? { ...b, status: { ...b.status, phase: 'pending' as const } }
+          : b
+      ));
     }
   };
 
@@ -205,23 +272,65 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
                       {formatDuration(build.status.startTime, build.status.completionTime)}
                     </Td>
                     <Td>
-                      <Button
-                        variant="link"
-                        onClick={() => openBuildModal(build)}
-                        icon={<EyeIcon />}
+                      <Dropdown
+                        isOpen={actionMenuOpen[build.metadata.name] || false}
+                        onOpenChange={(isOpen) => toggleActionMenu(build.metadata.name, isOpen)}
+                        toggle={(toggleRef) => (
+                          <MenuToggle
+                            ref={toggleRef}
+                            variant="plain"
+                            onClick={() => toggleActionMenu(build.metadata.name)}
+                            aria-label="Build actions"
+                            isExpanded={actionMenuOpen[build.metadata.name] || false}
+                          >
+                            <EllipsisVIcon />
+                          </MenuToggle>
+                        )}
+                        popperProps={{ position: 'right' }}
                       >
-                        Details
-                      </Button>
-                      {build.status.phase === 'succeeded' && build.status.imageUrl && (
-                        <Button
-                          variant="secondary"
-                          onClick={() => downloadArtifact(build)}
-                          icon={<DownloadIcon />}
-                          style={{ marginLeft: '8px' }}
-                        >
-                          Download
-                        </Button>
-                      )}
+                        <DropdownList>
+                          <DropdownItem
+                            key="view"
+                            onClick={() => handleActionSelect(build, 'view')}
+                            icon={<EyeIcon />}
+                          >
+                            View Details
+                          </DropdownItem>
+                          {build.status.phase === 'succeeded' && build.status.imageUrl && (
+                            <DropdownItem
+                              key="download"
+                              onClick={() => handleActionSelect(build, 'download')}
+                              icon={<DownloadIcon />}
+                            >
+                              Download Artifact
+                            </DropdownItem>
+                          )}
+                          <DropdownItem
+                            key="copy"
+                            onClick={() => handleActionSelect(build, 'copy')}
+                            icon={<CopyIcon />}
+                          >
+                            Copy Name
+                          </DropdownItem>
+                          {build.status.phase === 'failed' && (
+                            <DropdownItem
+                              key="restart"
+                              onClick={() => handleActionSelect(build, 'restart')}
+                              icon={<RedoIcon />}
+                            >
+                              Restart Build
+                            </DropdownItem>
+                          )}
+                          <DropdownItem
+                            key="delete"
+                            onClick={() => handleActionSelect(build, 'delete')}
+                            icon={<TrashIcon />}
+                            isDanger
+                          >
+                            Delete Build
+                          </DropdownItem>
+                        </DropdownList>
+                      </Dropdown>
                     </Td>
                   </Tr>
                 ))}
