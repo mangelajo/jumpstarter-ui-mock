@@ -218,31 +218,23 @@ const BuildsPage: React.FC<BuildsPageProps> = ({ onCreateBuild, refreshTrigger =
 
   const generateFlashCommands = (build: Build, leaseTemplate: LeaseTemplate) => {
     const imageUrl = build.status.imageUrl || 'https://example.com/build-artifact.img';
+    const buildTarget = build.metadata.labels?.target;
+    const aibPlatform = leaseTemplate.metadata.labels?.['aib-platform'];
+    
+    // Get the flash command from the lease template and replace {image} with the actual image URL
+    const templateFlashCommand = leaseTemplate.spec.flashCommand || 'j storage flash {image}';
+    const actualFlashCommand = templateFlashCommand.replace('{image}', imageUrl);
+    
     const commands = [
       {
-        title: 'Basic Flash Command',
-        command: `j storage flash ${imageUrl}`,
-        description: 'Flash the image to the device using the basic command'
+        title: 'Get Shell Access',
+        command: `jmp shell -l ${aibPlatform}`,
+        description: 'Get shell access to the target board using the aib-platform label'
       },
       {
-        title: 'Flash with Verification',
-        command: `j storage flash --verify ${imageUrl}`,
-        description: 'Flash with verification to ensure data integrity'
-      },
-      {
-        title: 'Flash with Progress',
-        command: `j storage flash --progress ${imageUrl}`,
-        description: 'Flash with progress indicator for long operations'
-      },
-      {
-        title: 'Flash to Specific Device',
-        command: `j storage flash --device ${leaseTemplate.metadata.name} ${imageUrl}`,
-        description: 'Flash to a specific device using the lease template name'
-      },
-      {
-        title: 'Flash with Custom Options',
-        command: `j storage flash --force --backup ${imageUrl}`,
-        description: 'Flash with custom options (force overwrite and backup existing)'
+        title: 'Flash Command',
+        command: actualFlashCommand,
+        description: `Execute the flash command for ${leaseTemplate.metadata.name}`
       }
     ];
     return commands;

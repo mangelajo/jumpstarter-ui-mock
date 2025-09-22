@@ -7501,7 +7501,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
                 "board": "nxp-imx8qxp-mek"
             },
             "base64Image": "data:image/jpg;base64,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",
-            "documentation": "https://www.nxp.com/design/design-center/development-boards-and-designs/i-mx-evaluation-and-development-boards/i-mx-8quadxplus-multisensory-enablement-kit-mek:MCIMX8QXP-CPU"
+            "documentation": "https://www.nxp.com/design/design-center/development-boards-and-designs/i-mx-evaluation-and-development-boards/i-mx-8quadxplus-multisensory-enablement-kit-mek:MCIMX8QXP-CPU",
+            "flashCommand": "j storage flash {image}",
         },
         "status": {}
     },
@@ -7531,7 +7532,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
                 "board": "nxp-s32g-vnp-rdb3"
             },
             "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-            "documentation": "https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/s32g-processors/s32g274a-vehicle-network-processor:S32G274A"
+            "documentation": "https://www.nxp.com/products/processors-and-microcontrollers/arm-processors/s32g-processors/s32g274a-vehicle-network-processor:S32G274A",
+            "flashCommand": "j storage flash {image}",
         },
         "status": {}
     },
@@ -7561,7 +7563,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
                 "board": "ti-am69"
             },
             "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-            "documentation": "https://www.ti.com/product/AM69"
+            "documentation": "https://www.ti.com/product/AM69",
+            "flashCommand": "j storage flash {image}",
         },
         "status": {}
     },
@@ -7591,7 +7594,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
                 "board-type": "qc8775"
             },
             "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-            "documentation": "https://www.qualcomm.com/products/application-processors/embedded-processors"
+            "documentation": "https://www.qualcomm.com/products/application-processors/embedded-processors",
+            "flashCommand": "j storage flash {image}",
         },
         "status": {}
     },
@@ -7621,7 +7625,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
                 "board-type": "renesas-rcar-s4"
             },
             "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-            "documentation": "https://www.renesas.com/us/en/products/automotive-products/automotive-system-chips-socs/r-car-s4"
+            "documentation": "https://www.renesas.com/us/en/products/automotive-products/automotive-system-chips-socs/r-car-s4",
+            "flashCommand": "dd if={image} of=/dev/mmcblk0 bs=1M status=progress"
         },
         "status": {}
     },
@@ -7651,7 +7656,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
                 "board-type": "j784s4evm"
             },
             "base64Image": "data:image/jpg;base64,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",
-            "documentation": "https://www.ti.com/tool/J784S4EVM"
+            "documentation": "https://www.ti.com/tool/J784S4EVM",
+            "flashCommand": "dd if={image} of=/dev/mmcblk0 bs=1M status=progress"
         },
         "status": {}
     },
@@ -7681,7 +7687,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
                 "board-type": "qemu"
             },
             "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-            "documentation": "https://www.qemu.org/"
+            "documentation": "https://www.qemu.org/",
+            "flashCommand": "qemu-img convert -f qcow2 {image} -O raw /dev/sda"
         },
         "status": {}
     },
@@ -7711,7 +7718,8 @@ let mockLeaseTemplatesData: LeaseTemplate[] = [
                 "board-type": "rpi4"
             },
             "base64Image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
-            "documentation": "https://www.raspberrypi.org/products/raspberry-pi-4-model-b/"
+            "documentation": "https://www.raspberrypi.org/products/raspberry-pi-4-model-b/",
+            "flashCommand": "dd if={image} of=/dev/mmcblk0 bs=1M status=progress"
         },
         "status": {}
     }

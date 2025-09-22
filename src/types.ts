@@ -57,6 +57,7 @@ export interface LeaseTemplate {
     exporterSelector: Record<string, string>;
     base64Image: string;
     documentation: string;
+    flashCommand: string;
   };
   status: {};
 }
