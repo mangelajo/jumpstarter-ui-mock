@@ -49,6 +49,7 @@ import ClientDetailsPage from './ClientDetailsPage';
 import CreateLeasePage from './CreateLeasePage';
 import BuildsPage from './BuildsPage';
 import CreateBuildPage from './CreateBuildPage';
+import WarningModal from './components/WarningModal';
 import { Exporter, Lease, Client, Build } from './types';
 import { getExporters, getLeases, addLease, getBuilds, addBuild } from './dataStore';
 import './App.css';
@@ -65,10 +66,20 @@ const App: React.FC = () => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState<number>(0);
   const [exportersFilter, setExportersFilter] = useState<Record<string, string> | undefined>(undefined);
+  const [showWarningModal, setShowWarningModal] = useState<boolean>(false);
 
   useEffect(() => {
     console.log('activeItem changed to:', activeItem);
   }, [activeItem]);
+
+  // Show warning modal on every page load/refresh
+  useEffect(() => {
+    setShowWarningModal(true);
+  }, []);
+
+  const handleWarningModalClose = (): void => {
+    setShowWarningModal(false);
+  };
 
   const onNavToggle = (): void => {
     setIsNavOpen(!isNavOpen);
@@ -456,14 +467,20 @@ const App: React.FC = () => {
   };
 
   return (
-    <Page
-      header={Header}
-      sidebar={Sidebar}
-      isManagedSidebar
-      mainContainerId="primary-app-container"
-    >
-      {getPageContent()}
-    </Page>
+    <>
+      <Page
+        header={Header}
+        sidebar={Sidebar}
+        isManagedSidebar
+        mainContainerId="primary-app-container"
+      >
+        {getPageContent()}
+      </Page>
+      <WarningModal 
+        isOpen={showWarningModal} 
+        onClose={handleWarningModalClose} 
+      />
+    </>
   );
 };
 
